@@ -622,3 +622,12 @@ cmp_priority (const struct list_elem *a, const struct list_elem *b, void *aux UN
 
   return ta->priority > tb->priority; 
 }
+
+void
+thread_block_till (int64_t wakeup_at, list_less_func *less)
+{
+  // block till next wakeup time
+  // put on list in proper order.
+  
+
+} 
