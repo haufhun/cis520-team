@@ -462,6 +462,7 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
+  t->old_priority = 0; // set as lowest priority first, so at least it has one.
   t->magic = THREAD_MAGIC;
 
   old_level = intr_disable ();
@@ -582,3 +583,42 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+/* Moves the current thread to the highest priority 
+   temporarily, and moves the thread to the beginning 
+   of ready_list */
+void 
+thread_priority_temporarily_up (void)
+{
+  struct thread *t = thread_current ();
+
+  t->old_priority = t->priority;
+
+  t->priority = PRI_MAX;
+
+  // move thread to front of list???
+}
+
+/* Moves the current thread to the old priority after 
+   the temporary bump up. Changes old priority to be 0 */
+void
+thread_priority_restore (void)
+{
+  struct thread *t = thread_current ();
+
+  t->priority = t->old_priority;
+
+  t->old_priority = PRI_MIN;
+}
+
+/* Compares the priorities of thread a and thread b.
+   Returns true if thread a priority is greater than thread b. 
+   Otheerwise, false. */
+bool
+cmp_priority (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+{
+  struct thread *ta = list_entry(a, struct thread, elem);
+  struct thread *tb = list_entry(b, struct thread, elem);
+
+  return ta->priority > tb->priority; 
+}
