@@ -95,7 +95,7 @@ timer_sleep (int64_t ticks)
 
   /* **> old way 
   while (timer_elapsed (start) < ticks) 
-  thread_yield ();
+    thread_yield ();
   */ 
 
   /* **> Our implementation. */

@@ -29,7 +29,7 @@ static struct list ready_list;
 static struct list all_list;
 
 /* **> Our implementation. List of all blocked threads */
-static struct list sleep_list;
+static struct list blocked_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -73,9 +73,9 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
-static bool sleep_ticks_less (const struct list_elem *a, 
-                              const struct list_elem *b,
-                              void *aux UNUSED);
+static bool thread_cmp_wakeup_times (const struct list_elem *a, 
+                                     const struct list_elem *b,
+                                     void *aux UNUSED);
 
 
 /* Initializes the threading system by transforming the code
@@ -99,7 +99,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
-  list_init (&sleep_list);
+  list_init (&blocked_list);
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -593,8 +593,9 @@ allocate_tid (void)
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
+/* This method was inspired by  <insert github URL>.*/
 static bool
-sleep_ticks_less (const struct list_elem *a, const struct list_elem *b,
+thread_cmp_wakeup_times (const struct list_elem *a, const struct list_elem *b,
                   void *aux UNUSED)
 {
   ASSERT (a != NULL);
@@ -602,28 +603,31 @@ sleep_ticks_less (const struct list_elem *a, const struct list_elem *b,
   const struct thread *ta = list_entry (a, struct thread, elem);
   const struct thread *tb = list_entry (b, struct thread, elem);
 
-  return ta->sleep_ticks < tb->sleep_ticks;
+  return ta->wakeup_time < tb->wakeup_time;
 }
 
+/* Inspiration for this method derived from TA's. */
 void
 thread_sleep (int64_t ticks) 
 {
   enum intr_level old_level;
+  struct semaphore *sema;
+  struct thread *t;
+  
+  t = thread_current ();
 
-  struct thread *t = thread_current ();
-
+  if (t->sleep_sema == NULL)
+    sema_init (&(t->sleep_sema), 0);
+  
   if (ticks <= 0)
     return;
 
   ASSERT (t->status == THREAD_RUNNING);
 
-  t->sleep_ticks = ticks + timer_ticks ();
+  t->wakeup_time = ticks + timer_ticks ();
   
-  old_level = intr_disable ();
-  list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
-  thread_block ();
-
-  intr_set_level (old_level);
+  list_insert_ordered (&blocked_list, &t->elem, thread_cmp_wakeup_times, NULL);
+  sema_down (t->sleep_sema)
 }
 
 void 
@@ -632,18 +636,18 @@ thread_wakeup (void)
   struct list_elem *elem_cur; 
   struct list_elem *elem_next;
   struct thread *t;
-  enum intr_level old_level;
 
-  if (list_empty (&sleep_list))
+  if (list_empty (&blocked_list))
     return;
 
-  elem_cur = list_begin (&sleep_list);
-  while (elem_cur != list_end (&sleep_list))
+  elem_cur = list_begin (&blocked_list);
+
+  while (elem_cur != list_end (&blocked_list))
   {
     elem_next = list_next (elem_cur);
     t = list_entry (elem_cur, struct thread, elem);
-    if (t->sleep_ticks > timer_ticks())
-      break;
+    if (t->wakeup_time > timer_ticks())
+      return;
     
     old_level = intr_disable ();
     list_remove (elem_cur);

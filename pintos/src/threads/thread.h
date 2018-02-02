@@ -102,7 +102,8 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
 
     /* **> Our implementation. */
-    int64_t sleep_ticks; 
+    int64_t wakeup_time; 
+    struct semaphore sleep_sema;
   };
 
 /* If false (default), use round-robin scheduler.
