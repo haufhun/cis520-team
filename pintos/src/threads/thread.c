@@ -616,7 +616,7 @@ thread_sleep (int64_t ticks)
   
   t = thread_current ();
 
-  if (t->sleep_sema == NULL)
+//  if (t->sleep_sema == NULL)
     sema_init (&(t->sleep_sema), 0);
   
   if (ticks <= 0)
@@ -627,7 +627,7 @@ thread_sleep (int64_t ticks)
   t->wakeup_time = ticks + timer_ticks ();
   
   list_insert_ordered (&blocked_list, &t->elem, thread_cmp_wakeup_times, NULL);
-  sema_down (t->sleep_sema)
+  sema_down (&t->sleep_sema);
 }
 
 void 
@@ -649,10 +649,8 @@ thread_wakeup (void)
     if (t->wakeup_time > timer_ticks())
       return;
     
-    old_level = intr_disable ();
     list_remove (elem_cur);
-    thread_unblock (t);
-    intr_set_level (old_level);
+    sema_up (&t->sleep_sema);
 
     elem_cur = elem_next;    
   }
