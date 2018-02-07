@@ -28,9 +28,6 @@ static struct list ready_list;
    when they are first scheduled and removed when they exit. */
 static struct list all_list;
 
-/* **> Our implementation. List of all blocked threads */
-static struct list blocked_list;
-
 /* Idle thread. */
 static struct thread *idle_thread;
 
@@ -99,7 +96,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
-  list_init (&blocked_list);
+  
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -145,8 +142,6 @@ thread_tick (void)
   /* Enforce preemption. */
   if (++thread_ticks >= TIME_SLICE)
     intr_yield_on_return ();
-
-  thread_wakeup ();
 }
 
 /* Prints thread statistics. */
@@ -605,53 +600,4 @@ thread_cmp_wakeup_times (const struct list_elem *a, const struct list_elem *b,
 
   return ta->wakeup_time < tb->wakeup_time;
 }
-
-/* Inspiration for this method derived from TA's. */
-void
-thread_sleep (int64_t ticks) 
-{
-  enum intr_level old_level;
-  struct semaphore *sema;
-  struct thread *t;
-  
-  t = thread_current ();
-
-//  if (t->sleep_sema == NULL)
-    sema_init (&(t->sleep_sema), 0);
-  
-  if (ticks <= 0)
-    return;
-
-  ASSERT (t->status == THREAD_RUNNING);
-
-  t->wakeup_time = ticks + timer_ticks ();
-  
-  list_insert_ordered (&blocked_list, &t->elem, thread_cmp_wakeup_times, NULL);
-  sema_down (&t->sleep_sema);
-}
-
-void 
-thread_wakeup (void)
-{
-  struct list_elem *elem_cur; 
-  struct list_elem *elem_next;
-  struct thread *t;
-
-  if (list_empty (&blocked_list))
-    return;
-
-  elem_cur = list_begin (&blocked_list);
-
-  while (elem_cur != list_end (&blocked_list))
-  {
-    elem_next = list_next (elem_cur);
-    t = list_entry (elem_cur, struct thread, elem);
-    if (t->wakeup_time > timer_ticks())
-      return;
-    
-    list_remove (elem_cur);
-    sema_up (&t->sleep_sema);
-
-    elem_cur = elem_next;    
-  }
 }

@@ -30,6 +30,10 @@ static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
+
+/* **> Our implementation. List of all blocked threads */
+static struct list blocked_list;
+
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
 void
@@ -37,6 +41,8 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+
+  list_init (&blocked_list);
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -89,18 +95,31 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks) 
 {
-  int64_t start = timer_ticks ();
+  enum intr_level old_level;
+  struct semaphore *sema;
+  struct thread *t;
+  int64_t start;
+    
+  if (ticks <= 0)
+    return;
+
+  start = timer_ticks ();
+
 
   ASSERT (intr_get_level () == INTR_ON);
 
-  /* **> old way 
-  while (timer_elapsed (start) < ticks) 
-    thread_yield ();
-  */ 
+  t = thread_current ();
 
-  /* **> Our implementation. */
-  thread_sleep (ticks);
-  /* **> */
+  sema_init (&(t->sleep_sema), 0);
+
+
+  ASSERT (t->status == THREAD_RUNNING);
+
+  t->wakeup_time = ticks + timer_ticks ();
+
+  list_insert_ordered (&blocked_list, &t->elem, thread_cmp_wakeup_times, NULL);
+  sema_down (&t->sleep_sema);
+
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -177,8 +196,26 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
+  struct list_elem e;
+  struct thread *t;
+
   ticks++;
   thread_tick ();
+
+  if (list_empty (&blocked_list))
+    return;
+
+  for (e = list_begin (&blocked_list); e != list_end (&blocked_list); e = list_next (e))
+  {
+    t = list_entry (e, struct thread, elem);
+    
+    if (t->wakeup_time > timer_ticks())
+      return;
+    
+    list_remove (e);
+    
+    sema_up (&t->sleep_sema);
+  }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
