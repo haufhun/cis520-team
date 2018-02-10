@@ -20,6 +20,9 @@
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
 
+/* **> Our implementation. List of all blocked threads */
+static struct list sleep_list;
+
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
 static unsigned loops_per_tick;
@@ -30,6 +33,11 @@ static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
+/* **> Our implementation.*/
+static bool sleep_ticks_less (const struct list_elem *a, 
+                              const struct list_elem *b,
+                              void *aux UNUSED);
+
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
 void
@@ -37,6 +45,8 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+  list_init (&sleep_list); // initilized the list.(Was our main problem.)
+
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -84,23 +94,57 @@ timer_elapsed (int64_t then)
   return timer_ticks () - then;
 }
 
+/**************> Added this method <*****************/
+static bool
+sleep_ticks_less (const struct list_elem *a, const struct list_elem *b,
+                  void *aux UNUSED)
+{
+  ASSERT (a != NULL);
+  ASSERT (b != NULL);
+  const struct thread *ta = list_entry (a, struct thread, elem);
+  const struct thread *tb = list_entry (b, struct thread, elem);
+
+  return ta->sleep_ticks < tb->sleep_ticks;
+}
+
+
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
    be turned on. */
 void
 timer_sleep (int64_t ticks) 
 {
-  int64_t start = timer_ticks ();
+  /************> old way <*************/
+  //int64_t start = timer_ticks ();
+  // while (timer_elapsed (start) < ticks) 
+  // thread_yield ();
+  /***********>end old way <***********/ 
 
+  /*************> Our implementation <*****************/
+  //thread_sleep (ticks);
+
+  enum intr_level old_level;
+  struct thread *t = thread_current ();
+  //struct semaphore *sema;
+  
   ASSERT (intr_get_level () == INTR_ON);
 
-  /* **> old way 
-  while (timer_elapsed (start) < ticks) 
-  thread_yield ();
-  */ 
+  //sema_init (&(t->sleep_sema), 0);
 
-  /* **> Our implementation. */
-  thread_sleep (ticks);
-  /* **> */
+  if (ticks <= 0)
+    return;
+
+  
+  ASSERT (t->status == THREAD_RUNNING);
+
+  t->sleep_ticks = ticks + timer_ticks ();
+  
+  old_level = intr_disable (); // comment this out for semma
+  list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
+  thread_block (); // comment this out for semma
+  //sema_down (&t->sleep_sema);
+
+  intr_set_level (old_level);
+  /**********>End of our implementation <***************/
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -179,7 +223,62 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
-}
+
+ /*****************> Our implementation <***************/ 
+ /********> Checks and wakes up sleeping threads <******/
+  struct list_elem *elem_cur;
+  struct thread *t;
+  bool preempt = false;
+
+  while (!list_empty(&sleep_list))
+  {
+    elem_cur = list_front (&sleep_list);
+    t = list_entry (elem_cur, struct thread, elem);
+    if (t->sleep_ticks > ticks)
+        break;
+
+    list_remove (elem_cur);
+    thread_unblock (t);
+    preempt = true;
+  }
+
+  if (preempt)
+    intr_yield_on_return ();
+
+
+  /***> Below this is the original copy from thread.c <***/
+  /*******************> Also works <**********************/
+   
+  // struct list_elem *elem_cur; 
+  // struct list_elem *elem_next;
+  // struct thread *t;
+  // enum intr_level old_level;
+
+  // if (list_empty (&sleep_list))
+  //   return;
+
+  // elem_cur = list_begin (&sleep_list);
+  // while (elem_cur != list_end (&sleep_list))
+  // {
+  //   elem_next = list_next (elem_cur);
+  //   t = list_entry (elem_cur, struct thread, elem);
+  //   if (t->sleep_ticks > timer_ticks())
+  //     break;
+    
+  //   old_level = intr_disable (); // comment this out for semma
+  //   list_remove (elem_cur);
+  //   //sema_up (&t->sleep_sema);
+  //   thread_unblock (t); // comment this out for semma
+  //   intr_set_level (old_level); // comment this out for semma
+
+  //   elem_cur = elem_next;    
+  // }
+
+
+
+/*************> End of our implementation <***************/
+
+ }
 
 /* Returns true if LOOPS iterations waits for more than one timer
    tick, otherwise false. */
