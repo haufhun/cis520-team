@@ -609,19 +609,23 @@ void
 thread_sleep (int64_t ticks) 
 {
   enum intr_level old_level;
-
+  //struct semaphore *sema;
   struct thread *t = thread_current ();
+  
+  //sema_init (&(t->sleep_sema), 0);
 
   if (ticks <= 0)
     return;
 
+  
   ASSERT (t->status == THREAD_RUNNING);
 
   t->sleep_ticks = ticks + timer_ticks ();
   
-  old_level = intr_disable ();
+  old_level = intr_disable (); // comment this out for semma
   list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
-  thread_block ();
+  thread_block (); // comment this out for semma
+  //sema_down (&t->sleep_sema);
 
   intr_set_level (old_level);
 }
@@ -645,10 +649,11 @@ thread_wakeup (void)
     if (t->sleep_ticks > timer_ticks())
       break;
     
-    old_level = intr_disable ();
+    old_level = intr_disable (); // comment this out for semma
     list_remove (elem_cur);
-    thread_unblock (t);
-    intr_set_level (old_level);
+    //sema_up (&t->sleep_sema);
+    thread_unblock (t); // comment this out for semma
+    intr_set_level (old_level); // comment this out for semma
 
     elem_cur = elem_next;    
   }
