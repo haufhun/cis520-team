@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <round.h>
 #include <stdio.h>
+#include <kernel/list.h>
 #include "devices/pit.h"
 #include "threads/interrupt.h"
 #include "threads/synch.h"
@@ -113,22 +114,20 @@ sleep_ticks_less (const struct list_elem *a, const struct list_elem *b,
 void
 timer_sleep (int64_t ticks) 
 {
-  /************> old way <*************/
+/************> old way <*************/
   //int64_t start = timer_ticks ();
   // while (timer_elapsed (start) < ticks) 
   // thread_yield ();
-  /***********>end old way <***********/ 
+/***********>end old way <***********/ 
 
-  /*************> Our implementation <*****************/
+/*************> Our implementation <*****************/
   //thread_sleep (ticks);
 
   enum intr_level old_level;
   struct thread *t = thread_current ();
-  //struct semaphore *sema;
-  
+
   ASSERT (intr_get_level () == INTR_ON);
 
-  //sema_init (&(t->sleep_sema), 0);
 
   if (ticks <= 0)
     return;
@@ -140,11 +139,12 @@ timer_sleep (int64_t ticks)
   
   old_level = intr_disable (); // comment this out for semma
   list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
-  thread_block (); // comment this out for semma
   //sema_down (&t->sleep_sema);
 
+  thread_block (); // comment this out for semma
+
   intr_set_level (old_level);
-  /**********>End of our implementation <***************/
+/**********>End of our implementation <***************/
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -224,8 +224,8 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
 
- /*****************> Our implementation <***************/ 
- /********> Checks and wakes up sleeping threads <******/
+/*****************> Our implementation <***************/ 
+/********> Checks and wakes up sleeping threads <******/
   struct list_elem *elem_cur;
   struct thread *t;
   bool preempt = false;
@@ -235,19 +235,20 @@ timer_interrupt (struct intr_frame *args UNUSED)
     elem_cur = list_front (&sleep_list);
     t = list_entry (elem_cur, struct thread, elem);
     if (t->sleep_ticks > ticks)
-        break;
+      break;
 
     list_remove (elem_cur);
     thread_unblock (t);
+    // sema_up (&t->sleep_sema);
     preempt = true;
   }
 
-  if (preempt)
-    intr_yield_on_return ();
+   if (preempt)
+     intr_yield_on_return ();
 
 
-  /***> Below this is the original copy from thread.c <***/
-  /*******************> Also works <**********************/
+/***> Below this is the original copy from thread.c <***/
+/*******************> Also works <**********************/
    
   // struct list_elem *elem_cur; 
   // struct list_elem *elem_next;
@@ -276,7 +277,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
 
 
 
-/*************> End of our implementation <***************/
+  /*************> End of our implementation <***************/
 
  }
 

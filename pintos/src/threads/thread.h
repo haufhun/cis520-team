@@ -4,7 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
-//#include "synch.h"
+#include "synch.h"
 
 
 /* States in a thread's life cycle. */
@@ -105,7 +105,7 @@ struct thread
 
     /* **> Our implementation. */
     int64_t sleep_ticks;
-    //struct semaphore sleep_sema;
+    struct semaphore sleep_sema;
   };
 
 /* If false (default), use round-robin scheduler.
