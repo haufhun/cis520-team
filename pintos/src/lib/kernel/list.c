@@ -1,5 +1,6 @@
 #include "list.h"
 #include "../debug.h"
+#include "threads/thread.h"
 
 /* Our doubly linked lists have two header elements: the "head"
    just before the first element and the "tail" just after the
@@ -456,6 +457,23 @@ list_insert_ordered (struct list *list, struct list_elem *elem,
     if (less (elem, e, aux))
       break;
   return list_insert (e, elem);
+}
+
+void
+list_priority_insert (struct list *list, struct list_elem *el)
+{
+  struct list_elem *e;
+
+  ASSERT (list != NULL);
+  ASSERT (el != NULL);
+
+  for (e = list_begin (list); e != list_end (list); e = list_next (e))
+    if(list_entry(el,struct thread, elem)->priority > list_entry(e, struct thread, elem)->priority)
+      break;
+
+  //   if (less (elem, e, aux))
+  //     break;
+  return list_insert (e, el);
 }
 
 /* Iterates through LIST and removes all but the first in each

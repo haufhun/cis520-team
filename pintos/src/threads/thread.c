@@ -243,7 +243,8 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_push_back (&ready_list, &t->elem);
+  list_priority_insert (&ready_list, &t->elem);
+  // list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -313,8 +314,9 @@ thread_yield (void)
   ASSERT (!intr_context ());
 
   old_level = intr_disable ();
-  if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+  if (cur != idle_thread)
+    list_priority_insert (&ready_list, &cur->elem);
+    // list_push_back (&ready_list, &cur->elem);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -472,6 +474,8 @@ init_thread (struct thread *t, const char *name, int priority)
  //sema_init (&t->sleep_sema, 0);
 
   old_level = intr_disable ();
+  // don't need to change this. this is the all list. just a list of all threads
+  // we may need to do something later though? chandra said
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
 }

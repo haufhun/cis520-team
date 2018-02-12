@@ -139,9 +139,10 @@ timer_sleep (int64_t ticks)
   
   old_level = intr_disable (); // comment this out for semma
   list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
-  //sema_down (&t->sleep_sema);
+  sema_init (&t->sleep_sema, 0);
+  sema_down (&t->sleep_sema);
 
-  thread_block (); // comment this out for semma
+  //thread_block (); // comment this out for semma
 
   intr_set_level (old_level);
 /**********>End of our implementation <***************/
@@ -238,8 +239,8 @@ timer_interrupt (struct intr_frame *args UNUSED)
       break;
 
     list_remove (elem_cur);
-    thread_unblock (t);
-    // sema_up (&t->sleep_sema);
+    //thread_unblock (t);
+    sema_up (&t->sleep_sema);
     preempt = true;
   }
 
