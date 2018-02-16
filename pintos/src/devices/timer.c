@@ -47,7 +47,6 @@ timer_init (void)
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
   list_init (&sleep_list); // initilized the list.(Was our main problem.)
-
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -125,20 +124,26 @@ timer_sleep (int64_t ticks)
 
   enum intr_level old_level;
   struct thread *t = thread_current ();
+  int64_t start = timer_ticks();
 
   ASSERT (intr_get_level () == INTR_ON);
 
 
-  if (ticks <= 0)
-    return;
+  // if (ticks <= 0)
+  //   return;
 
   
   ASSERT (t->status == THREAD_RUNNING);
 
-  t->sleep_ticks = ticks + timer_ticks ();
-  
+  //printf("THread is %?, ")
+  //printf("current ticks: %llu", ticks);
+  t->sleep_ticks = start + timer_ticks ();
   old_level = intr_disable (); // comment this out for semma
-  list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
+  list_wakeup_ticks_insert(&sleep_list,&t->wait_elem);
+  //list_wakeup_ticks_insert(&sleep_list,&t->elem);
+
+  //list_insert_ordered (&sleep_list, &t->elem, sleep_ticks_less, NULL);
+
   sema_init (&t->sleep_sema, 0);
   sema_down (&t->sleep_sema);
 
@@ -222,30 +227,47 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
+  struct thread * next_thread;
+  struct list_elem * el;
+
   ticks++;
   thread_tick ();
 
-/*****************> Our implementation <***************/ 
-/********> Checks and wakes up sleeping threads <******/
-  struct list_elem *elem_cur;
-  struct thread *t;
-  bool preempt = false;
-
   while (!list_empty(&sleep_list))
   {
-    elem_cur = list_front (&sleep_list);
-    t = list_entry (elem_cur, struct thread, elem);
-    if (t->sleep_ticks > ticks)
-      break;
+    el = list_pop_front(&sleep_list);
+    next_thread = list_entry(el,struct thread, wait_elem);
+    if(ticks < next_thread->sleep_ticks)
+     { 
+       list_push_front(&sleep_list,el);
+       break;
+     }
+      //printf("timer_interupt(): Thread ready to be unblocked\n");
+      sema_up(&next_thread->sleep_sema);
+      //list_remove(&next_thread->wait_elem);
+  } //his code from yesterday.
 
-    list_remove (elem_cur);
-    //thread_unblock (t);
-    sema_up (&t->sleep_sema);
-    preempt = true;
-  }
+/*****************> Our implementation <***************/ 
+/********> Checks and wakes up sleeping threads <******/
+  // struct list_elem *elem_cur;
+  // struct thread *t;
+  // bool preempt = false;
 
-   if (preempt)
-     intr_yield_on_return ();
+  // while (!list_empty(&sleep_list))
+  // {
+  //   elem_cur = list_front (&sleep_list);
+  //   t = list_entry (elem_cur, struct thread, elem);
+  //   if (t->sleep_ticks > ticks)
+  //     break;
+
+  //   list_remove (elem_cur);
+  //   thread_unblock (t);
+  //   //sema_up (&t->sleep_sema);
+  //   preempt = true;
+  // }
+
+  //  if (preempt)
+  //    intr_yield_on_return ();
 
 
 /***> Below this is the original copy from thread.c <***/

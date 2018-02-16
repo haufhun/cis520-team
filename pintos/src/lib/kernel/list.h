@@ -146,6 +146,7 @@ void list_push_back (struct list *, struct list_elem *);
 /* List removal. */
 struct list_elem *list_remove (struct list_elem *);
 struct list_elem *list_pop_front (struct list *);
+struct list_elem *my_list_pop_front (struct list *list);
 struct list_elem *list_pop_back (struct list *);
 
 /* List elements. */
@@ -172,11 +173,15 @@ void list_sort (struct list *,
 void list_insert_ordered (struct list *, struct list_elem *,
                           list_less_func *, void *aux);
 void list_priority_insert (struct list *, struct list_elem *);
+
+void list_wakeup_ticks_insert (struct list *, struct list_elem *);
+
 void list_unique (struct list *, struct list *duplicates,
                   list_less_func *, void *aux);
 
 /* Max and min. */
 struct list_elem *list_max (struct list *, list_less_func *, void *aux);
+struct list_elem *my_list_max (struct list *, list_less_func *, void *aux);
 struct list_elem *list_min (struct list *, list_less_func *, void *aux);
 
 #endif /* lib/kernel/list.h */

@@ -21,7 +21,7 @@ test_alarm_single (void)
 void
 test_alarm_multiple (void) 
 {
-  test_sleep (5, 7);
+  test_sleep (5, 2);
 }
 
 /* Information about the test. */
@@ -79,18 +79,20 @@ test_sleep (int thread_cnt, int iterations)
 
   /* Start threads. */
   ASSERT (output != NULL);
+  uint8_t PRIORITY;
   for (i = 0; i < thread_cnt; i++)
     {
       struct sleep_thread *t = threads + i;
       char name[16];
       
+      PRIORITY = (i + 1)*2;
       t->test = &test;
       t->id = i;
       t->duration = (i + 1) * 10;
       t->iterations = 0;
 
       snprintf (name, sizeof name, "thread %d", i);
-      thread_create (name, PRI_DEFAULT, sleeper, t);
+      thread_create (name, PRIORITY, sleeper, t);
     }
   
   /* Wait long enough for all the threads to finish. */

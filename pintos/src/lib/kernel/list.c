@@ -86,10 +86,10 @@ list_next (struct list_elem *elem)
   return elem->next;
 }
 
-/* Returns LIST's tail.
-
+/* 
    list_end() is often used in iterating through a list from
-   front to back.  See the big comment at the top of list.h for
+   front to back.  See the big comment at the top of list.h forReturns LIST's tail.
+
    an example. */
 struct list_elem *
 list_end (struct list *list)
@@ -440,6 +440,48 @@ list_sort (struct list *list, list_less_func *less, void *aux)
   ASSERT (is_sorted (list_begin (list), list_end (list), less, aux));
 }
 
+/* Sorts LIST according to MAX given auxiliary data AUX, using a
+   natural iterative merge sort that runs in O(n lg n) time and
+   O(1) space in the number of elements in LIST. */
+void
+my_list_sort (struct list *list, list_less_func *less, void *aux)
+{
+  size_t output_run_cnt;        /* Number of runs output in current pass. */
+
+  ASSERT (list != NULL);
+  ASSERT (less != NULL);
+
+  /* Pass over the list repeatedly, merging adjacent runs of
+     nondecreasing elements, until only one run is left. */
+  do
+    {
+      struct list_elem *a0;     /* Start of first run. */
+      struct list_elem *a1b0;   /* End of first run, start of second. */
+      struct list_elem *b1;     /* End of second run. */
+
+      output_run_cnt = 0;
+      for (a0 = list_begin (list); a0 != list_end (list); a0 = b1)
+        {
+          /* Each iteration produces one output run. */
+          output_run_cnt++;
+
+          /* Locate two adjacent runs of nondecreasing elements
+             A0...A1B0 and A1B0...B1. */
+          a1b0 = find_end_of_run (a0, list_end (list), less, aux);
+          if (a1b0 == list_end (list))
+            break;
+          b1 = find_end_of_run (a1b0, list_end (list), less, aux);
+
+          /* Merge the runs. */
+          inplace_merge (a0, a1b0, b1, less, aux);
+        }
+    }
+  while (output_run_cnt > 1);
+
+  ASSERT (is_sorted (list_begin (list), list_end (list), less, aux));
+}
+
+
 /* Inserts ELEM in the proper position in LIST, which must be
    sorted according to LESS given auxiliary data AUX.
    Runs in O(n) average case in the number of elements in LIST. */
@@ -460,23 +502,50 @@ list_insert_ordered (struct list *list, struct list_elem *elem,
 }
 
 void
-list_priority_insert (struct list *list, struct list_elem *el)
+list_priority_insert(struct list *list, struct list_elem *el)
 {
   struct list_elem *e;
+  const struct thread *existing;
+  const struct thread *new;
 
   ASSERT (list != NULL);
   ASSERT (el != NULL);
+  
+  for (e = list_begin (list); e != list_end (list); e = list_next (e)) {
+    
+    existing = list_entry(e, struct thread, elem);
+    new = list_entry(el, struct thread, elem);
+    
+    if( new->priority > existing->priority )
+        break;
+   }
 
-  for (e = list_begin (list); e != list_end (list); e = list_next (e))
-    if(list_entry(el,struct thread, elem)->priority > list_entry(e, struct thread, elem)->priority)
-      break;
-
-  //   if (less (elem, e, aux))
-  //     break;
   return list_insert (e, el);
 }
 
-/* Iterates through LIST and removes all but the first in each
+void
+list_wakeup_ticks_insert(struct list *list, struct list_elem *el)
+{
+  struct list_elem *e;
+  const struct thread *existing;
+  const struct thread *new;
+
+  ASSERT (list != NULL);
+  ASSERT (el != NULL);
+  
+  for (e = list_begin (list); e != list_end (list); e = list_next (e)) {
+    
+    existing = list_entry(e, struct thread, wait_elem);
+    new = list_entry(el, struct thread, wait_elem);
+    
+    if( new->sleep_ticks < existing->sleep_ticks )
+        break;
+   }
+
+  return list_insert (e, el);
+}
+
+/* Iterates through LIST and removes all but the first in eachor
    set of adjacent elements that are equal according to LESS
    given auxiliary data AUX.  If DUPLICATES is non-null, then the
    elements from LIST are appended to DUPLICATES. */
@@ -517,6 +586,25 @@ list_max (struct list *list, list_less_func *less, void *aux)
       
       for (e = list_next (max); e != list_end (list); e = list_next (e))
         if (less (max, e, aux))
+          max = e; 
+    }
+  return max;
+}
+
+/* Returns the element in LIST with the largest value according
+   to LESS given auxiliary data AUX.  If there is more than one
+   maximum, returns the one that appears earlier in the list.  If
+   the list is empty, returns its tail. */
+struct list_elem *
+my_list_max (struct list *list, list_less_func *less, void *aux)
+{
+  struct list_elem *max = list_begin (list);
+  if (max != list_end (list)) 
+    {
+      struct list_elem *e;
+      
+      for (e = list_next (max); e != list_end (list); e = list_next (e))
+        if (!less (max, e, aux))
           max = e; 
     }
   return max;

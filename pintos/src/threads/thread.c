@@ -20,6 +20,9 @@
    of thread.h for details. */
 #define THREAD_MAGIC 0xcd6abf4b
 
+//Our implementation
+#define THREAD_PTR_NULL (struct thread *)0
+
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
@@ -152,7 +155,17 @@ thread_print_stats (void)
   printf ("Thread: %lld idle ticks, %lld kernel ticks, %lld user ticks\n",
           idle_ticks, kernel_ticks, user_ticks);
 }
-
+	// possible implementation to find priority, have not used 
+bool compare_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+{
+    struct thread *threadA = list_entry(a, struct thread, elem);
+    struct thread *threadB = list_entry(b, struct thread, elem);
+    if (threadA -> priority > threadB->priority)
+    {
+        return true;
+    }
+    return false;
+}
 /* Creates a new kernel thread named NAME with the given initial
    PRIORITY, which executes FUNCTION passing AUX as the argument,
    and adds it to the ready queue.  Returns the thread identifier
@@ -207,6 +220,13 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
+//last thing we want to do.
+  struct thread *curr_thread = thread_current();
+  if(t->priority > curr_thread->priority)
+  {
+    //schedule();
+    thread_yield();
+  }
   return tid;
 }
 
@@ -243,8 +263,8 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_priority_insert (&ready_list, &t->elem);
-  // list_push_back (&ready_list, &t->elem);
+  list_priority_insert(&ready_list, &t->elem);
+  //list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -316,7 +336,7 @@ thread_yield (void)
   old_level = intr_disable ();
   if (cur != idle_thread)
     list_priority_insert (&ready_list, &cur->elem);
-    // list_push_back (&ready_list, &cur->elem);
+//list_push_back (&ready_list, &cur->elem);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -343,7 +363,15 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-  thread_current ()->priority = new_priority;
+  struct thread * thread_curr = thread_current();
+  thread_curr->priority = new_priority;
+  // Implement priority donation to all the donee thread
+   
+    if(thread_curr->donee != THREAD_PTR_NULL){
+      donate_priority(thread_curr, thread_curr->donee);
+    }
+  
+  //Need to make sure that the old_priority is updated only once
 }
 
 /* Returns the current thread's priority. */
@@ -471,9 +499,9 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
- //sema_init (&t->sleep_sema, 0);
 
   old_level = intr_disable ();
+
   // don't need to change this. this is the all list. just a list of all threads
   // we may need to do something later though? chandra said
   list_push_back (&all_list, &t->allelem);
@@ -505,6 +533,15 @@ next_thread_to_run (void)
     return idle_thread;
   else
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
+}
+//saundras code
+struct list_elem * my_list_pop_front (struct list *list){
+  struct list_elem *front = my_list_max(list,compare_priority,NULL);
+  //struct list_elem *back = list_back(list);
+  
+  
+  list_remove (front);
+  return front;
 }
 
 /* Completes a thread switch by activating the new thread's page
@@ -593,3 +630,18 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+
+void donate_priority(struct thread *donor_thread, struct thread *donee_thread)
+{
+  donee_thread->old_priority = donee_thread->priority;
+  donee_thread->priority = donor_thread->priority;
+  donor_thread->donee = donee_thread;
+  donee_thread->donor = donor_thread;
+
+  // after donating the priority, we want to ensure the the thread w/ the highest priority is executed first. 
+  // check if the donee thread has the highest priority amongst the threads in the ready queue and execute it right away
+}
+
+// void check_highest_thread_priority method here? 
+

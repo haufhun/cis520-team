@@ -68,7 +68,8 @@ sema_down (struct semaphore *sema)
   old_level = intr_disable ();
   while (sema->value == 0) 
     {
-      list_push_back (&sema->waiters, &thread_current ()->elem);
+      list_priority_insert (&sema->waiters, &thread_current ()->elem);
+      //list_push_back (&sema->waiters, &thread_current ()->elem);
       thread_block ();
     }
   sema->value--;
@@ -196,8 +197,17 @@ lock_acquire (struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
 
+  /* 
+  if(!sema_try_down(&lock->semaphore)) {
+    if(lock->holder->priority <= thread_current()->priority){
+      donate_priority(thread_current(), lock->holder);
+    }
+  }
+  */
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
+
+  //Possible site for priority donation
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -232,6 +242,13 @@ lock_release (struct lock *lock)
   ASSERT (lock_held_by_current_thread (lock));
 
   lock->holder = NULL;
+// want to reorder our prioirty to orginal priority in here.
+  /*
+  if(thread_current()->donor THREAD_PTR_NULL){
+    thread_current()->donor->donee = THREAD_PTR_NULL; // don't erase the donor and donee stuff. this will set the current threaed in the donor thread to null
+    thread_set_priority(thread_current()->old_priority);
+  }
+  */
   sema_up (&lock->semaphore);
 }
 

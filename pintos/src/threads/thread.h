@@ -4,7 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
-#include "synch.h"
+#include "threads/synch.h"
 
 
 /* States in a thread's life cycle. */
@@ -82,6 +82,8 @@ typedef int tid_t;
    only because they are mutually exclusive: only a thread in the
    ready state is on the run queue, whereas only a thread in the
    blocked state is on a semaphore wait list. */
+#ifndef THREAD_
+#define THREAD_
 struct thread
   {
     /* Owned by thread.c. */
@@ -90,6 +92,7 @@ struct thread
     char name[16];                      /* Name (for debugging purposes). */
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
+    int old_priority;                     // keeps track of the priority assigned to the trhead before someone donated priority to it
     struct list_elem allelem;           /* List element for all threads list. */
 
     /* Shared between thread.c and synch.c. */
@@ -106,8 +109,13 @@ struct thread
     /* **> Our implementation. */
     int64_t sleep_ticks;
     struct semaphore sleep_sema;
+    int8_t waiting_for;
+    struct list_elem wait_elem;
+    struct thread *donor;  // pointer to the thread whcih donated the prirotity to this thread(if there is one)
+    //can use list_elem or list
+    struct thread *donee;  // pointer to thread to whcih this thread donated priority to ( if there is one)
   };
-
+#endif
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
    Controlled by kernel command-line option "-o mlfqs". */
@@ -138,6 +146,7 @@ void thread_foreach (thread_action_func *, void *);
 
 int thread_get_priority (void);
 void thread_set_priority (int);
+void donate_priority(struct thread *,struct thread *);
 
 int thread_get_nice (void);
 void thread_set_nice (int);

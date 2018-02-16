@@ -10,6 +10,8 @@
 void
 test_my_alarm (void) 
 {
-  timer_sleep (100);
+  //printf("timer_sleep: actually woken up at %d", ticks);
+  //timer_sleep (100);
+  timer_sleep(100);
   pass ();
 }
