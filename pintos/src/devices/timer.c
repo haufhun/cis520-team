@@ -19,7 +19,6 @@
 #endif
 
 //#define TIME_EVENT 1
-//#define THREAD_PTR_NULL (struct thread *)0
 
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
@@ -130,14 +129,14 @@ timer_sleep (int64_t ticks)
   ASSERT (intr_get_level () == INTR_ON);
 
 
-  // if (ticks <= 0)
-  //   return;
+  if (ticks <= 0)
+    return;
 
   
   ASSERT (t->status == THREAD_RUNNING);
 
-  //printf("THread is %?, ")
-  //printf("current ticks: %llu", ticks);
+  //printf("\nThread is; %s", t->tid);
+  //printf("\nThread to be awaken at: %llu\n", ticks+ timer_ticks());
   t->sleep_ticks = ticks + timer_ticks ();
   old_level = intr_disable (); // comment this out for semma
   //list_wakeup_ticks_insert(&sleep_list,&t->wait_elem);

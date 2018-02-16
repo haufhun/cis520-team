@@ -21,7 +21,7 @@
 #define THREAD_MAGIC 0xcd6abf4b
 
 //Our implementation
-#define THREAD_PTR_NULL (struct thread *)0
+
 
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */

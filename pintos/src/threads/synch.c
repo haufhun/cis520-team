@@ -197,17 +197,37 @@ lock_acquire (struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
 
-  /* 
-  if(!sema_try_down(&lock->semaphore)) {
-    if(lock->holder->priority <= thread_current()->priority){
-      donate_priority(thread_current(), lock->holder);
-    }
-  }
-  */
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
-
+   
   //Possible site for priority donation
+}
+
+void
+my_lock_acquire (struct lock *lock)
+{
+  ASSERT (lock != NULL);
+  ASSERT (!intr_context ());
+  ASSERT (!lock_held_by_current_thread (lock));
+
+  struct thread * curr_thread = thread_current();
+  struct thread * lock_holder_thread = lock->holder;
+  // ASSERT(sema_try_down(&lock->semaphore) != 0)
+
+  if(lock->semaphore.value == 0) 
+  {
+    if(lock_holder_thread != THREAD_PTR_NULL)
+    {
+      // lock->semaphore.value++;
+      if(lock_holder_thread->priority < curr_thread->priority)
+      {
+       donate_priority(curr_thread, lock_holder_thread);
+      }
+    }
+  }
+
+  sema_down (&lock->semaphore);
+  lock->holder = thread_current ();
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
