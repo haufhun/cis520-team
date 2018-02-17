@@ -4,6 +4,7 @@
 #include <random.h>
 #include <stdio.h>
 #include <string.h>
+#include "lib/kernel/list.h"
 #include "threads/flags.h"
 #include "threads/interrupt.h"
 #include "threads/intr-stubs.h"
@@ -364,12 +365,19 @@ void
 thread_set_priority (int new_priority) 
 {
   struct thread * thread_curr = thread_current();
+  struct list_elem * donee_elem;
+  struct thread * donee_thread;
   thread_curr->priority = new_priority;
   // Implement priority donation to all the donee thread
-   
-    if(thread_curr->donee != THREAD_PTR_NULL){
-      donate_priority(thread_curr, thread_curr->donee);
-    }
+   while(!list_empty(&thread_curr->donee_list))
+   {
+      donee_elem = list_pop_front(&thread_curr->donee_list);
+      donee_thread = list_entry(donee_elem,struct thread, lock_elem);
+      donate_priority(thread_curr,donee_thread);
+   }
+    // if(thread_curr->donee != THREAD_PTR_NULL){
+    //   donate_priority(thread_curr, thread_curr->donee);
+    // }
   
   //Need to make sure that the old_priority is updated only once
 }
@@ -499,6 +507,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
+  list_init(&t->donee_list);
+  list_init(&t->donor_list);
 
   old_level = intr_disable ();
 
@@ -535,10 +545,10 @@ next_thread_to_run (void)
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
 }
 //saundras code
-struct list_elem * my_list_pop_front (struct list *list){
+struct list_elem * my_list_pop_front (struct list *list)
+{
   struct list_elem *front = my_list_max(list,compare_priority,NULL);
   //struct list_elem *back = list_back(list);
-  
   
   list_remove (front);
   return front;
@@ -636,9 +646,18 @@ void donate_priority(struct thread *donor_thread, struct thread *donee_thread)
 {
   donee_thread->old_priority = donee_thread->priority;
   donee_thread->priority = donor_thread->priority;
-  donor_thread->donee = donee_thread;
-  donee_thread->donor = donor_thread;
 
+  //add the donne thread to the list of the donorsin the donor thread
+  list_priority_insert(&donor_thread->donee_list, &donee_thread->lock_elem);
+  
+  //add the donor therad to the lsit of donnees in the donee thread
+  list_priority_insert(&donee_thread->donor_list, &donor_thread->lock_elem);
+  
+  // donor_thread->donee = donee_thread;
+  // donee_thread->donor = donor_thread;
+
+  // check if ee thead has the highest priority amongst the threads in the ready que
+  list_sort(&ready_list, priority_sort,NULL);
   // after donating the priority, we want to ensure the the thread w/ the highest priority is executed first. 
   // check if the donee thread has the highest priority amongst the threads in the ready queue and execute it right away
 }

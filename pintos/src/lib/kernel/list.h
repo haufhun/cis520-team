@@ -170,6 +170,7 @@ typedef bool list_less_func (const struct list_elem *a,
 /* Operations on lists with ordered elements. */
 void list_sort (struct list *,
                 list_less_func *, void *aux);
+bool priority_sort (struct list_elem *new, struct list_elem *exis, void *auz);
 void list_insert_ordered (struct list *, struct list_elem *,
                           list_less_func *, void *aux);
 void list_priority_insert (struct list *, struct list_elem *);

@@ -110,15 +110,32 @@ void
 sema_up (struct semaphore *sema) 
 {
   enum intr_level old_level;
+  struct list_elem * max_elem;
 
   ASSERT (sema != NULL);
 
   old_level = intr_disable ();
   if (!list_empty (&sema->waiters)) 
-    thread_unblock (list_entry (list_pop_front (&sema->waiters),
-                                struct thread, elem));
+  {
+    list_sort(&sema->waiters, priority_sort,NULL);
+    max_elem = list_pop_front(&sema->waiters);
+    thread_unblock(list_entry(max_elem,struct thread, elem));
+  }
   sema->value++;
   intr_set_level (old_level);
+  
+  //original below
+  // enum intr_level old_level;
+  // struct list_elem * max_elem;
+
+  // ASSERT (sema != NULL);
+
+  // old_level = intr_disable ();
+  // if (!list_empty (&sema->waiters)) 
+  //   thread_unblock (list_entry (list_pop_front (&sema->waiters),
+  //                              struct thread, elem));
+  //   sema->value++;
+  //   intr_set_level (old_level);
 }
 
 static void sema_test_helper (void *sema_);
@@ -222,10 +239,10 @@ my_lock_acquire (struct lock *lock)
       if(lock_holder_thread->priority < curr_thread->priority)
       {
        donate_priority(curr_thread, lock_holder_thread);
+       // sort the list where lock_holder is located at
       }
     }
   }
-
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
 }
@@ -258,17 +275,25 @@ lock_try_acquire (struct lock *lock)
 void
 lock_release (struct lock *lock) 
 {
+  struct thread * thread_curr;
+  struct list_elem *next_donor_elem;
+  struct thread * next_donor_thread;
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
   lock->holder = NULL;
+  thread_curr = thread_current();
 // want to reorder our prioirty to orginal priority in here.
-  /*
-  if(thread_current()->donor THREAD_PTR_NULL){
-    thread_current()->donor->donee = THREAD_PTR_NULL; // don't erase the donor and donee stuff. this will set the current threaed in the donor thread to null
-    thread_set_priority(thread_current()->old_priority);
+  //try putting this into semma up
+  while(!list_empty(&thread_curr->donor_list))
+  {//navigate though all donors and remove thsi thread from their donne list
+  //assumption: every thread must release all the locks it is holding if it wants to acqurie a new lock that is not available at this time.
+      next_donor_elem = list_pop_front(&thread_curr->donor_list);
+      next_donor_thread = list_entry(next_donor_elem, struct thread, lock_elem);
+      list_remove(next_donor_elem);
+      thread_set_priority(thread_curr->old_priority);
   }
-  */
+  //
   sema_up (&lock->semaphore);
 }
 

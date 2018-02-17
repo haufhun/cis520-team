@@ -440,47 +440,14 @@ list_sort (struct list *list, list_less_func *less, void *aux)
   ASSERT (is_sorted (list_begin (list), list_end (list), less, aux));
 }
 
-/* Sorts LIST according to MAX given auxiliary data AUX, using a
-   natural iterative merge sort that runs in O(n lg n) time and
-   O(1) space in the number of elements in LIST. */
-void
-my_list_sort (struct list *list, list_less_func *less, void *aux)
+bool priority_sort (struct list_elem *new, struct list_elem *exis, void *auz)
 {
-  size_t output_run_cnt;        /* Number of runs output in current pass. */
-
-  ASSERT (list != NULL);
-  ASSERT (less != NULL);
-
-  /* Pass over the list repeatedly, merging adjacent runs of
-     nondecreasing elements, until only one run is left. */
-  do
-    {
-      struct list_elem *a0;     /* Start of first run. */
-      struct list_elem *a1b0;   /* End of first run, start of second. */
-      struct list_elem *b1;     /* End of second run. */
-
-      output_run_cnt = 0;
-      for (a0 = list_begin (list); a0 != list_end (list); a0 = b1)
-        {
-          /* Each iteration produces one output run. */
-          output_run_cnt++;
-
-          /* Locate two adjacent runs of nondecreasing elements
-             A0...A1B0 and A1B0...B1. */
-          a1b0 = find_end_of_run (a0, list_end (list), less, aux);
-          if (a1b0 == list_end (list))
-            break;
-          b1 = find_end_of_run (a1b0, list_end (list), less, aux);
-
-          /* Merge the runs. */
-          inplace_merge (a0, a1b0, b1, less, aux);
-        }
-    }
-  while (output_run_cnt > 1);
-
-  ASSERT (is_sorted (list_begin (list), list_end (list), less, aux));
+  struct thread *exis_thread;
+  struct thread *new_thread;
+    new_thread = list_entry(new, struct thread, elem);
+    exis_thread = list_entry(exis, struct thread, elem);
+    return( new_thread->priority > exis_thread->priority);
 }
-
 
 /* Inserts ELEM in the proper position in LIST, which must be
    sorted according to LESS given auxiliary data AUX.
