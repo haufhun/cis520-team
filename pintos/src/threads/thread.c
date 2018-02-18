@@ -358,7 +358,7 @@ thread_set_priority (int new_priority)
   if (new_priority < old_priority && list_empty (&t->locks))
     {
       t->priority = new_priority;
-      thread_test_preemption ();
+      thread_try_preemption ();
     }
 }
 
@@ -382,7 +382,7 @@ thread_add_lock (struct lock *lock)
   if (lock->max_priority > thread_current ()->priority)
     {
       thread_current ()->priority = lock->max_priority;
-      thread_test_preemption ();
+      thread_try_preemption ();
     }
   intr_set_level (old_level);
 }
@@ -439,7 +439,7 @@ thread_update_priority (struct thread *t)
 
 /* Test if current thread should be preempted. */
 void
-thread_test_preemption (void)
+thread_try_preemption (void)
 {
   enum intr_level old_level = intr_disable ();
   if (!list_empty (&ready_list) && thread_current ()->priority < 
