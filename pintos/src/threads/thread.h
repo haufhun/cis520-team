@@ -90,7 +90,6 @@ struct thread
     char name[16];                      /* Name (for debugging purposes). */
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
-    int base_priority;                  /* Base priority for priority donation */
     struct list_elem allelem;           /* List element for all threads list. */
 
     /* Shared between thread.c, synch.c and timer.c. */
@@ -102,6 +101,7 @@ struct thread
     int64_t wakeup_ticks;               /* Wakeup ticks used by timer sleep */
     struct list_elem sleep_elem;        /* Sleep list element. */
     struct semaphore timer_sema;        /* Semaphore used in timer_sleep. */
+    int old_priority;                   /* Original priority for priority donation. */
 
 
 #ifdef USERPROG
@@ -141,8 +141,6 @@ void thread_yield (void);
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
 
-void thread_add_lock (struct lock *);
-void thread_remove_lock (struct lock *);
 
 int thread_get_priority (void);
 void thread_set_priority (int);

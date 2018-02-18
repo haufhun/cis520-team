@@ -249,9 +249,16 @@ lock_acquire (struct lock *lock)
   cur_thread->lock_waiting = NULL;
   lock->holder = cur_thread;
   lock->max_priority = cur_thread->priority;
-  thread_add_lock(lock);
   
-  intr_set_level (old_level);
+  list_insert_ordered(&cur_thread->locks, &lock->elem, lock_priority_large, NULL);
+
+  if (lock->max_priority > cur_thread->priority)
+  {
+    cur_thread->priority = lock->max_priority;
+    thread_try_preemption();
+  }
+
+  intr_set_level(old_level);
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -283,12 +290,17 @@ void
 lock_release (struct lock *lock) 
 {
   ASSERT (lock != NULL);
-  ASSERT (lock_held_by_current_thread (lock));
+  ASSERT (lock_held_by_current_thread(lock));
 
-  thread_remove_lock (lock);
+  enum intr_level old_level = intr_disable();
+
+  list_remove(&lock->elem);
+  thread_update_priority(thread_current());
+
+  intr_set_level(old_level);
 
   lock->holder = NULL;
-  sema_up (&lock->semaphore);
+  sema_up(&lock->semaphore);
 }
 
 /* Returns true if the current thread holds LOCK, false
@@ -415,12 +427,9 @@ cond_broadcast (struct condition *cond, struct lock *lock)
 bool
 synch_sema_priority_more (const struct list_elem *new_elem, const struct list_elem *cur_elem, void *aux UNUSED)
 {
-  struct thread *new_thread;
-  struct thread *cur_thread;
-  struct semaphore_elem *new_sema; 
-  struct semaphore_elem *cur_sema; 
-  struct list_elem *front_new_elem;
-  struct list_elem *front_cur_elem;
+  struct thread *new_thread, *cur_thread;
+  struct semaphore_elem *new_sema, *cur_sema; 
+  struct list_elem *front_new_elem, *front_cur_elem;
   
   new_sema = list_entry (new_elem, struct semaphore_elem, elem);
   cur_sema = list_entry (cur_elem, struct semaphore_elem, elem);

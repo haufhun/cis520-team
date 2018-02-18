@@ -201,12 +201,9 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
-  // test if we need to preempt or not
-  struct thread *curr_thread = thread_current();
-  if(t->priority > curr_thread->priority)
-  {
+  /* Test if we need to preempt or not. */
+  if(t->priority > thread_current()->priority)
     thread_yield();
-  }
 
   return tid;
 }
@@ -241,13 +238,14 @@ thread_unblock (struct thread *t)
   enum intr_level old_level;
 
   ASSERT (is_thread (t));
-
-  old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_insert_ordered (&ready_list, &t->elem,
-                       thread_priority_more, NULL);
+
+  old_level = intr_disable();
+
+  list_insert_ordered(&ready_list, &t->elem, thread_priority_more, NULL);
   t->status = THREAD_READY;
-  intr_set_level (old_level);
+
+  intr_set_level(old_level);
 }
 
 /* Returns the name of the running thread. */
@@ -314,13 +312,15 @@ thread_yield (void)
   
   ASSERT (!intr_context ());
 
-  old_level = intr_disable ();
+  old_level = intr_disable();
+
   if (cur != idle_thread) 
-    list_insert_ordered (&ready_list, &cur->elem,
-                         thread_priority_more, NULL);
+    list_insert_ordered(&ready_list, &cur->elem, thread_priority_more, NULL);
+
   cur->status = THREAD_READY;
-  schedule ();
-  intr_set_level (old_level);
+  schedule();
+
+  intr_set_level(old_level);
 }
 
 /* Invoke function 'func' on all threads, passing along 'aux'.
@@ -340,26 +340,21 @@ thread_foreach (thread_action_func *func, void *aux)
     }
 }
 
-/* Sets the current thread's priority to NEW_PRIORITY.
-   If the priority is donated by another thread, it may
-   not change immediately. */
+/* Sets the current thread's priority to NEW_PRIORITY. This updates the thread's old_priority to current priority 
+    and will check if the current thread should be preempted. */
 void
 thread_set_priority (int new_priority) 
 {
-  struct thread *t = thread_current ();
-  int old_priority = t->priority;
+  struct thread *t = thread_current();
+  int temp_priority = t->priority;
 
-  /* Always update base priority. */
-  t->base_priority = new_priority;
+  t->old_priority = new_priority;
 
-  /* Only update priority and test preemption if new priority
-     is smaller and current priority is not donated by another
-     thread. */
-  if (new_priority < old_priority && list_empty (&t->locks))
-    {
-      t->priority = new_priority;
-      thread_try_preemption ();
-    }
+  if (new_priority < temp_priority && list_empty(&t->locks))
+  {
+    t->priority = new_priority;
+    thread_try_preemption();
+  }
 }
 
 /* Returns the current thread's priority. */
@@ -369,83 +364,65 @@ thread_get_priority (void)
   return thread_current ()->priority;
 }
 
-/* Add a held lock to current thread. */
-void
-thread_add_lock (struct lock *lock)
-{
-  enum intr_level old_level = intr_disable ();
-  list_insert_ordered (&thread_current ()->locks, &lock->elem,
-                       lock_priority_large, NULL);
-
-  /* Update priority and test preemption if lock's priority
-     is larger than current priority. */
-  if (lock->max_priority > thread_current ()->priority)
-    {
-      thread_current ()->priority = lock->max_priority;
-      thread_try_preemption ();
-    }
-  intr_set_level (old_level);
-}
-
-/* Remove a held lock from current thread. */
-void
-thread_remove_lock (struct lock *lock)
-{
-  enum intr_level old_level = intr_disable ();
-  /* Remove lock from list and update priority. */
-  list_remove (&lock->elem);
-  thread_update_priority (thread_current ());
-  intr_set_level (old_level);
-}
-
 /* Donate current thread's priority to another thread. */
 void
 thread_donate_priority (struct thread *t)
 {
-  enum intr_level old_level = intr_disable ();
-  thread_update_priority (t);
-  /* If thread is in ready list, reorder it. */
+  enum intr_level old_level = intr_disable();
+
+  thread_update_priority(t);
+
   if (t->status == THREAD_READY)
-    {
-      list_remove (&t->elem);
-      list_insert_ordered (&ready_list, &t->elem,
-                           thread_priority_more, NULL);
-    }
-  intr_set_level (old_level);
+  {
+    list_remove(&t->elem);
+    list_insert_ordered(&ready_list, &t->elem, thread_priority_more, NULL);
+  }
+
+  intr_set_level(old_level);
 }
 
-/* Update thread's priority. This function only update
-   priority and do not preempt. */
+/* This updates the thread's priority to either the old priority or max priority from the thread's list of locks. 
+    This function will not preempt. */
 void
 thread_update_priority (struct thread *t)
 {
-  enum intr_level old_level = intr_disable ();
-  int max_priority = t->base_priority;
-  int lock_priority;
+  enum intr_level old_level;
+  int lock_priority, max_priority;
 
-  /* Get locks' max priority. */
-  if (!list_empty (&t->locks))
-    {
-      list_sort (&t->locks, lock_priority_large, NULL);
-      lock_priority = list_entry (list_front (&t->locks),
-                                  struct lock, elem)->max_priority;
-      if (lock_priority > max_priority)
-        max_priority = lock_priority;
-    }
+  old_level = intr_disable();
+  
+  max_priority = t->old_priority;
+
+  if (!list_empty(&t->locks))
+  {
+    list_sort(&t->locks, lock_priority_large, NULL);
+    lock_priority = list_entry(list_front(&t->locks), struct lock, elem)->max_priority;
+    max_priority = lock_priority > max_priority ? lock_priority : max_priority;
+  }
 
   t->priority = max_priority;
-  intr_set_level (old_level);
+
+  intr_set_level(old_level);
 }
 
-/* Test if current thread should be preempted. */
+/* Tries to preempt the current thread. */
 void
 thread_try_preemption (void)
 {
-  enum intr_level old_level = intr_disable ();
-  if (!list_empty (&ready_list) && thread_current ()->priority < 
-      list_entry (list_front (&ready_list), struct thread, elem)->priority)
-      thread_yield ();
-  intr_set_level (old_level);
+  enum intr_level old_level;
+  struct thread *front_thread;
+
+  old_level = intr_disable();
+
+  if (!list_empty(&ready_list))
+  {
+    front_thread = list_entry(list_front(&ready_list), struct thread, elem);
+
+    if(thread_current()->priority < front_thread->priority)
+      thread_yield();
+  }    
+  
+  intr_set_level(old_level);
 }
 
 /* Sets the current thread's nice value to NICE. */
@@ -479,11 +456,16 @@ thread_get_recent_cpu (void)
   return 0;
 }
 
-/* Compare priority of two threads. */
-bool thread_priority_more(const struct list_elem *new_elem, const struct list_elem *cur_elem, void *aux UNUSED)
+/* More function for list_insert_ordered comparing two threads' priorities. 
+    Returns true if new_thread has greater priority than cur_thread. This will
+    sort the list of condition variables by priorities. */
+bool 
+thread_priority_more(const struct list_elem *new_elem, const struct list_elem *cur_elem, void *aux UNUSED)
 {
-  struct thread *new_thread = list_entry (new_elem, struct thread, elem);
-  struct thread *cur_thread = list_entry (cur_elem, struct thread, elem);
+  struct thread *new_thread, *cur_thread; 
+
+  new_thread = list_entry (new_elem, struct thread, elem);
+  cur_thread = list_entry (cur_elem, struct thread, elem);
 
   return new_thread->priority > cur_thread->priority;
 }
@@ -570,19 +552,21 @@ init_thread (struct thread *t, const char *name, int priority)
   ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
   ASSERT (name != NULL);
 
-  memset (t, 0, sizeof *t);
+  memset(t, 0, sizeof *t);
   t->status = THREAD_BLOCKED;
-  strlcpy (t->name, name, sizeof t->name);
+  strlcpy(t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
-  t->base_priority = priority;
-  list_init (&t->locks);
-  t->lock_waiting = NULL;
   t->magic = THREAD_MAGIC;
+  t->old_priority = priority;
+  list_init(&t->locks);
+  t->lock_waiting = NULL;
 
-  old_level = intr_disable ();
-  list_push_back (&all_list, &t->allelem);
-  intr_set_level (old_level);
+  old_level = intr_disable();
+
+  list_push_back(&all_list, &t->allelem);
+  
+  intr_set_level(old_level);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
