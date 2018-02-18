@@ -227,47 +227,50 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-  struct thread * next_thread;
-  struct list_elem * el;
+//   struct thread * next_thread;
+//   struct list_elem * el;
 
+//   ticks++;
+//   thread_tick ();
+
+//   while (!list_empty(&sleep_list))
+//   {
+//     el = list_pop_front(&sleep_list);
+//     next_thread = list_entry(el,struct thread, wait_elem);
+//     if(ticks < next_thread->sleep_ticks)
+//      { 
+//        list_push_front(&sleep_list,el);
+//        break;
+//      }
+//       //printf("timer_interupt(): Thread ready to be unblocked\n");
+//       sema_up(&next_thread->sleep_sema);
+//       //list_remove(&next_thread->wait_elem);
+//   } //his code from yesterday.
+
+/*****************> Our implementation <***************/ 
+/********> Checks and wakes up sleeping threads <******/
+  struct list_elem *elem_cur;
+  struct thread *t;
+  bool preempt = false;
+  
   ticks++;
   thread_tick ();
 
   while (!list_empty(&sleep_list))
   {
-    el = list_pop_front(&sleep_list);
-    next_thread = list_entry(el,struct thread, wait_elem);
-    if(ticks < next_thread->sleep_ticks)
-     { 
-       list_push_front(&sleep_list,el);
-       break;
-     }
-      //printf("timer_interupt(): Thread ready to be unblocked\n");
-      sema_up(&next_thread->sleep_sema);
-      //list_remove(&next_thread->wait_elem);
-  } //his code from yesterday.
+    elem_cur = list_front (&sleep_list);
+    t = list_entry (elem_cur, struct thread, wait_elem);
+    if (t->sleep_ticks > ticks)
+      break;
 
-/*****************> Our implementation <***************/ 
-/********> Checks and wakes up sleeping threads <******/
-  // struct list_elem *elem_cur;
-  // struct thread *t;
-  // bool preempt = false;
+    list_remove (elem_cur);
+    //thread_unblock (t);
+    sema_up (&t->sleep_sema);
+    preempt = true;
+  }
 
-  // while (!list_empty(&sleep_list))
-  // {
-  //   elem_cur = list_front (&sleep_list);
-  //   t = list_entry (elem_cur, struct thread, wait_elem);
-  //   if (t->sleep_ticks > ticks)
-  //     break;
-
-  //   list_remove (elem_cur);
-  //   //thread_unblock (t);
-  //   sema_up (&t->sleep_sema);
-  //   preempt = true;
-  // }
-
-  //  if (preempt)
-  //    intr_yield_on_return ();
+   if (preempt)
+     intr_yield_on_return ();
 
 
 /***> Below this is the original copy from thread.c <***/

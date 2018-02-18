@@ -24,7 +24,7 @@ test_my_alarm (void)
   
   pass ();
 }
-void test_my_thread()
+void test_my_thread(void)
 {
   thread_set_priority(PRI_MAX);
 
@@ -40,12 +40,12 @@ void test_my_thread()
 
   return;
 }
-void thread1()
+void thread1(void)
 {
   static uint8_t once = 1;
   while(1){
     printf("thread 1 executing...\n" );
-    my_lock_acquire(&lock1);
+    lock_acquire(&lock1);
     printf("thread 1: lock acquried!\n" );
     if(once)
     {
@@ -58,18 +58,18 @@ void thread1()
     printf("thead 1 relaesed the lock!\n");
   }
 }
-void thread2()
+void thread2(void)
 {
   while(1){
     // printf("thread 2 executing...\n" );
     // timer_sleep(10);
   }
 }
-void thread3()
+void thread3(void)
 {
   while(1){
     printf("thread 3 executing...\n" );
-    my_lock_acquire(&lock1);
+    lock_acquire(&lock1);
     printf("thread 3: lock acquired!\n");
     lock_release(&lock1);
     printf("Thread 3 released the lock and now exiting..\n");
