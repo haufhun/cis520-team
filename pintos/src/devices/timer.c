@@ -91,20 +91,9 @@ timer_elapsed (int64_t then)
   return timer_ticks () - then;
 }
 
-static bool
-timer_wakeup_ticks_less (const struct list_elem *new_elem, const struct list_elem *cur_elem,
-                  void *aux UNUSED)
-{
-  ASSERT (new_elem != NULL);
-  ASSERT (cur_elem != NULL);
-  const struct thread *new_thread = list_entry (new_elem, struct thread, sleep_elem);
-  const struct thread *cur_thread = list_entry (cur_elem, struct thread, sleep_elem);
-
-  return new_thread->wakeup_ticks < cur_thread->wakeup_ticks;
-}
-
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
-   be turned on. */
+   be turned on. Uses an ordered list and semaphores to put the 
+   current thread to sleep. */
 void
 timer_sleep (int64_t sleep_ticks) 
 {
@@ -112,23 +101,19 @@ timer_sleep (int64_t sleep_ticks)
   struct thread *cur_thread = thread_current();
 
   ASSERT (intr_get_level () == INTR_ON);
+  ASSERT (cur_thread->status == THREAD_RUNNING);
 
   if (sleep_ticks <= 0)
     return;
 
-   old_level = intr_disable ();
+  old_level = intr_disable ();
 
   cur_thread->wakeup_ticks = ticks + sleep_ticks;
-
-  /* Insert current thread to ordered sleeping list */
-  list_insert_ordered (&sleep_list, &cur_thread->sleep_elem,
-                       timer_wakeup_ticks_less, NULL);
-
-
+  list_insert_ordered (&sleep_list, &cur_thread->sleep_elem, timer_wakeup_ticks_less, NULL);
   sema_init (&cur_thread->timer_sema, 0);
   sema_down (&cur_thread->timer_sema);
 
-   intr_set_level (old_level);
+  intr_set_level (old_level);
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -201,31 +186,35 @@ timer_print_stats (void)
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
 
-/* Timer interrupt handler. */
+/* Timer interrupt handler. Checks for any sleeping 
+    threads and wakes up those that are ready. */
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-  struct list_elem *front_el;
+  struct list_elem *front_elem;
   struct thread *front_thread;
   bool should_preempt = false;
 
+  /* Must do these next two lines for the timer. */
   ticks++;
   thread_tick ();
 
-  /* Check and wake up sleeping threads. */
   while (!list_empty(&sleep_list))
-    {
-      front_el = list_front (&sleep_list);
-      front_thread = list_entry (front_el, struct thread, sleep_elem);
-      if (front_thread->wakeup_ticks > ticks)
-          break;
+  {
+    front_elem = list_front (&sleep_list);
+    front_thread = list_entry (front_elem, struct thread, sleep_elem);
+    
+    if (front_thread->wakeup_ticks > ticks)
+      break;
 
-      list_remove (front_el);
+    list_remove (front_elem);
+    sema_up(&front_thread->timer_sema);
+    should_preempt = true;
+  }
 
-      sema_up(&front_thread->timer_sema);
-      should_preempt = true;
-    }
-
+  /* Since this is an external interrupt, we call this function
+      to yield the CPU to a different process (since we just 
+      put the current one to sleep). */
   if (should_preempt)
     intr_yield_on_return ();
 }
@@ -299,4 +288,22 @@ real_time_delay (int64_t num, int32_t denom)
      the possibility of overflow. */
   ASSERT (denom % 1000 == 0);
   busy_wait (loops_per_tick * num / 1000 * TIMER_FREQ / (denom / 1000)); 
+}
+
+/* Less function for list_insert_ordered comparing two threads' wakeup_ticks. 
+    Returns true if cur_thread is greater than new_thread 
+    wakeup_ticks.*/
+static bool
+timer_wakeup_ticks_less (const struct list_elem *new_elem, const struct list_elem *cur_elem, void *aux UNUSED)
+{
+  const struct thread *cur_thread;
+  const struct thread *new_thread;
+  
+  ASSERT (new_elem != NULL);
+  ASSERT (cur_elem != NULL);
+
+  cur_thread = list_entry (cur_elem, struct thread, sleep_elem);
+  new_thread = list_entry (new_elem, struct thread, sleep_elem);
+
+  return new_thread->wakeup_ticks < cur_thread->wakeup_ticks;
 }
