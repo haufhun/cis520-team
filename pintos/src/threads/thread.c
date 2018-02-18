@@ -4,7 +4,6 @@
 #include <random.h>
 #include <stdio.h>
 #include <string.h>
-#include "lib/kernel/list.h"
 #include "threads/flags.h"
 #include "threads/interrupt.h"
 #include "threads/intr-stubs.h"
@@ -21,9 +20,6 @@
    of thread.h for details. */
 #define THREAD_MAGIC 0xcd6abf4b
 
-//Our implementation
-
-
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
@@ -31,9 +27,6 @@ static struct list ready_list;
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
 static struct list all_list;
-
-/* **> Our implementation. List of all blocked threads */
-//static struct list sleep_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -77,7 +70,6 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
-
 
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
@@ -145,8 +137,6 @@ thread_tick (void)
   /* Enforce preemption. */
   if (++thread_ticks >= TIME_SLICE)
     intr_yield_on_return ();
-
-  //thread_wakeup (); //
 }
 
 /* Prints thread statistics. */
@@ -156,17 +146,7 @@ thread_print_stats (void)
   printf ("Thread: %lld idle ticks, %lld kernel ticks, %lld user ticks\n",
           idle_ticks, kernel_ticks, user_ticks);
 }
-	// possible implementation to find priority, have not used 
-bool compare_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
-{
-    struct thread *threadA = list_entry(a, struct thread, elem);
-    struct thread *threadB = list_entry(b, struct thread, elem);
-    if (threadA -> priority > threadB->priority)
-    {
-        return true;
-    }
-    return false;
-}
+
 /* Creates a new kernel thread named NAME with the given initial
    PRIORITY, which executes FUNCTION passing AUX as the argument,
    and adds it to the ready queue.  Returns the thread identifier
@@ -221,13 +201,9 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
-//last thing we want to do.
-  struct thread *curr_thread = thread_current();
-  if(t->priority > curr_thread->priority)
-  {
-    //schedule();
-    thread_yield();
-  }
+  /* Test preemtpion. */
+  thread_test_preemption ();
+
   return tid;
 }
 
@@ -264,8 +240,8 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_priority_insert(&ready_list, &t->elem);
-  //list_push_back (&ready_list, &t->elem);
+  list_insert_ordered (&ready_list, &t->elem,
+                       thread_priority_large, NULL);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -335,9 +311,9 @@ thread_yield (void)
   ASSERT (!intr_context ());
 
   old_level = intr_disable ();
-  if (cur != idle_thread)
-    list_priority_insert (&ready_list, &cur->elem);
-//list_push_back (&ready_list, &cur->elem);
+  if (cur != idle_thread) 
+    list_insert_ordered (&ready_list, &cur->elem,
+                         thread_priority_large, NULL);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -360,26 +336,26 @@ thread_foreach (thread_action_func *func, void *aux)
     }
 }
 
-/* Sets the current thread's priority to NEW_PRIORITY. */
+/* Sets the current thread's priority to NEW_PRIORITY.
+   If the priority is donated by another thread, it may
+   not change immediately. */
 void
 thread_set_priority (int new_priority) 
 {
-  struct thread * thread_curr = thread_current();
-  struct list_elem * donee_elem;
-  struct thread * donee_thread;
-  thread_curr->priority = new_priority;
-  // Implement priority donation to all the donee thread
-   while(!list_empty(&thread_curr->donee_list))
-   {
-      donee_elem = list_pop_front(&thread_curr->donee_list);
-      donee_thread = list_entry(donee_elem,struct thread, lock_elem);
-      donate_priority(thread_curr,donee_thread);
-   }
-    // if(thread_curr->donee != THREAD_PTR_NULL){
-    //   donate_priority(thread_curr, thread_curr->donee);
-    // }
-  
-  //Need to make sure that the old_priority is updated only once
+  struct thread *t = thread_current ();
+  int old_priority = t->priority;
+
+  /* Always update base priority. */
+  t->base_priority = new_priority;
+
+  /* Only update priority and test preemption if new priority
+     is smaller and current priority is not donated by another
+     thread. */
+  if (new_priority < old_priority && list_empty (&t->locks))
+    {
+      t->priority = new_priority;
+      thread_test_preemption ();
+    }
 }
 
 /* Returns the current thread's priority. */
@@ -387,6 +363,85 @@ int
 thread_get_priority (void) 
 {
   return thread_current ()->priority;
+}
+
+/* Add a held lock to current thread. */
+void
+thread_add_lock (struct lock *lock)
+{
+  enum intr_level old_level = intr_disable ();
+  list_insert_ordered (&thread_current ()->locks, &lock->elem,
+                       lock_priority_large, NULL);
+
+  /* Update priority and test preemption if lock's priority
+     is larger than current priority. */
+  if (lock->max_priority > thread_current ()->priority)
+    {
+      thread_current ()->priority = lock->max_priority;
+      thread_test_preemption ();
+    }
+  intr_set_level (old_level);
+}
+
+/* Remove a held lock from current thread. */
+void
+thread_remove_lock (struct lock *lock)
+{
+  enum intr_level old_level = intr_disable ();
+  /* Remove lock from list and update priority. */
+  list_remove (&lock->elem);
+  thread_update_priority (thread_current ());
+  intr_set_level (old_level);
+}
+
+/* Donate current thread's priority to another thread. */
+void
+thread_donate_priority (struct thread *t)
+{
+  enum intr_level old_level = intr_disable ();
+  thread_update_priority (t);
+  /* If thread is in ready list, reorder it. */
+  if (t->status == THREAD_READY)
+    {
+      list_remove (&t->elem);
+      list_insert_ordered (&ready_list, &t->elem,
+                           thread_priority_large, NULL);
+    }
+  intr_set_level (old_level);
+}
+
+/* Update thread's priority. This function only update
+   priority and do not preempt. */
+void
+thread_update_priority (struct thread *t)
+{
+  enum intr_level old_level = intr_disable ();
+  int max_priority = t->base_priority;
+  int lock_priority;
+
+  /* Get locks' max priority. */
+  if (!list_empty (&t->locks))
+    {
+      list_sort (&t->locks, lock_priority_large, NULL);
+      lock_priority = list_entry (list_front (&t->locks),
+                                  struct lock, elem)->max_priority;
+      if (lock_priority > max_priority)
+        max_priority = lock_priority;
+    }
+
+  t->priority = max_priority;
+  intr_set_level (old_level);
+}
+
+/* Test if current thread should be preempted. */
+void
+thread_test_preemption (void)
+{
+  enum intr_level old_level = intr_disable ();
+  if (!list_empty (&ready_list) && thread_current ()->priority < 
+      list_entry (list_front (&ready_list), struct thread, elem)->priority)
+      thread_yield ();
+  intr_set_level (old_level);
 }
 
 /* Sets the current thread's nice value to NICE. */
@@ -419,6 +474,29 @@ thread_get_recent_cpu (void)
   /* Not yet implemented. */
   return 0;
 }
+
+/* Compare wakeup ticks of two threads */
+bool
+thread_wakeup_ticks_less(const struct list_elem *a,
+                         const struct list_elem *b,
+                         void *aux UNUSED)
+{
+  struct thread *pta = list_entry (a, struct thread, elem);
+  struct thread *ptb = list_entry (b, struct thread, elem);
+  return pta->wakeup_ticks < ptb->wakeup_ticks;
+}
+
+/* Compare priority of two thread. */
+bool
+thread_priority_large(const struct list_elem *a,
+                      const struct list_elem *b,
+                      void *aux UNUSED)
+{
+  struct thread *pta = list_entry (a, struct thread, elem);
+  struct thread *ptb = list_entry (b, struct thread, elem);
+  return pta->priority > ptb->priority;
+}
+
 
 /* Idle thread.  Executes when no other thread is ready to run.
 
@@ -506,14 +584,12 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
+  t->base_priority = priority;
+  list_init (&t->locks);
+  t->lock_waiting = NULL;
   t->magic = THREAD_MAGIC;
-  list_init(&t->donee_list);
-  list_init(&t->donor_list);
 
   old_level = intr_disable ();
-
-  // don't need to change this. this is the all list. just a list of all threads
-  // we may need to do something later though? chandra said
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
 }
@@ -543,15 +619,6 @@ next_thread_to_run (void)
     return idle_thread;
   else
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
-}
-//saundras code
-struct list_elem * my_list_pop_front (struct list *list)
-{
-  struct list_elem *front = my_list_max(list,compare_priority,NULL);
-  //struct list_elem *back = list_back(list);
-  
-  list_remove (front);
-  return front;
 }
 
 /* Completes a thread switch by activating the new thread's page
@@ -640,27 +707,3 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
-
-
-void donate_priority(struct thread *donor_thread, struct thread *donee_thread)
-{
-  donee_thread->old_priority = donee_thread->priority;
-  donee_thread->priority = donor_thread->priority;
-
-  //add the donne thread to the list of the donorsin the donor thread
-  list_priority_insert(&donor_thread->donee_list, &donee_thread->lock_elem);
-  
-  //add the donor therad to the lsit of donnees in the donee thread
-  list_priority_insert(&donee_thread->donor_list, &donor_thread->lock_elem);
-  
-  // donor_thread->donee = donee_thread;
-  // donee_thread->donor = donor_thread;
-
-  // check if ee thead has the highest priority amongst the threads in the ready que
-  list_sort(&ready_list, priority_sort,NULL);
-  // after donating the priority, we want to ensure the the thread w/ the highest priority is executed first. 
-  // check if the donee thread has the highest priority amongst the threads in the ready queue and execute it right away
-}
-
-// void check_highest_thread_priority method here? 
-

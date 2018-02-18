@@ -10,69 +10,76 @@
 void thread1();
 void thread2();
 void thread3();
-struct lock lock1;
+
+struct lock test_lock;
+
 
 void
 test_my_alarm (void) 
 {
-  timer_sleep(1000);
-  printf("test_my_alarm(): Thread actually awoken at: %llu\n",timer_ticks());
-  timer_sleep(1000);
-  printf("test_my_alarm(): Thread actually awoken at: %llu\n",timer_ticks());
-  timer_sleep(1000);
-  printf("test_my_alarm(): Thread actually awoken at: %llu\n",timer_ticks());
-  
+  timer_sleep (1000);
+  printf("test_my_alarm(): Thread actually awaken at: %llu\n", timer_ticks());
+  timer_sleep (1000);
+  printf("test_my_alarm(): Thread actually awaken at: %llu\n", timer_ticks());
+  timer_sleep (1000);
+  printf("test_my_alarm(): Thread actually awaken at: %llu\n", timer_ticks());
   pass ();
 }
-void test_my_thread(void)
+
+void test_my_thread (void)
 {
-  thread_set_priority(PRI_MAX);
-
-  lock_init(&lock1);
-
-  thread_create ("Thread1", PRI_DEFAULT, thread1, NULL);
-  timer_sleep(10); // main thread goes to sleep
-
-  thread_create ("Thread2", PRI_DEFAULT+1, thread2, NULL);
-  timer_sleep(10);// main thread goes to sleep
-  thread_create ("Thread3", PRI_MAX, thread3, NULL);
-  printf("All threads created! main thread now exiting..\n");
-
-  return;
+    thread_set_priority(PRI_MAX);
+    
+    lock_init(&test_lock);
+    
+    thread_create ("Thread 1", PRI_DEFAULT, thread1, NULL);
+    timer_sleep(10); // main thread goes to sleep
+    
+    // thread_create ("Thread 2", PRI_DEFAULT+1, thread2, NULL);
+    // timer_sleep(10);  // main thread goes to sleep 
+    
+    thread_create ("Thread 3", PRI_MAX, thread3, NULL);
+    
+    printf("All threads created! Main thread now exiting...\n");
+    return;
 }
-void thread1(void)
+
+void thread1()
 {
-  static uint8_t once = 1;
-  while(1){
-    printf("thread 1 executing...\n" );
-    lock_acquire(&lock1);
-    printf("thread 1: lock acquried!\n" );
-    if(once)
-    {
-      printf("thread 1 going to sleep \n");
-      timer_sleep(100);
-      once = 0;
+static uint8_t once = 1;
+
+    while(1) {
+        printf("Thread 1 executing...\n");
+        lock_acquire(&test_lock);
+        printf("Thread 1 acquired the lock!\n");
+        if(once) {
+            printf("Thread 1 going to sleep zzzzzZ\n");
+            timer_sleep(100);
+            once = 0;
+        }
+        printf("Thread 1 trying to release the lock ...\n");
+        lock_release(&test_lock);
+        printf("Thread 1 released the lock!\n");
+        // break;
     }
-    printf("thead 1 tyring to release the lock");
-    lock_release(&lock1);
-    printf("thead 1 relaesed the lock!\n");
-  }
 }
-void thread2(void)
+
+
+void thread2()
 {
-  while(1){
-    // printf("thread 2 executing...\n" );
-    // timer_sleep(10);
-  }
+    while(1) {
+        //printf("Thread 2 executing...\n");
+    }
 }
-void thread3(void)
+
+void thread3()
 {
-  while(1){
-    printf("thread 3 executing...\n" );
-    lock_acquire(&lock1);
-    printf("thread 3: lock acquired!\n");
-    lock_release(&lock1);
-    printf("Thread 3 released the lock and now exiting..\n");
-    break;
-  }
+    while(1) {
+        printf("Thread 3 executing...\n");
+        lock_acquire(&test_lock);
+        printf("Thread 3 acquired the lock!\n");
+        lock_release(&test_lock);
+        printf("Thread 3 released the lock and now exiting...\n");
+        break;
+    }
 }

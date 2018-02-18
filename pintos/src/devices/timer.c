@@ -18,13 +18,11 @@
 #error TIMER_FREQ <= 1000 recommended
 #endif
 
-//#define TIME_EVENT 1
+/* Waiting list of timer_sleep */
+struct list sleeping_list;
 
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
-
-/* **> Our implementation. List of all blocked threads */
-struct list sleep_list;
 
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
@@ -36,11 +34,6 @@ static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
-/* **> Our implementation.*/
-static bool sleep_ticks_less (const struct list_elem *a, 
-                              const struct list_elem *b,
-                              void *aux UNUSED);
-
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
 void
@@ -48,7 +41,7 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-  list_init (&sleep_list); // initilized the list.(Was our main problem.)
+  list_init (&sleeping_list);
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -96,61 +89,28 @@ timer_elapsed (int64_t then)
   return timer_ticks () - then;
 }
 
-/**************> Added this method <*****************/
-static bool
-sleep_ticks_less (const struct list_elem *a, const struct list_elem *b,
-                  void *aux UNUSED)
-{
-  ASSERT (a != NULL);
-  ASSERT (b != NULL);
-  const struct thread *ta = list_entry (a, struct thread, wait_elem);
-  const struct thread *tb = list_entry (b, struct thread, wait_elem);
-
-  return ta->sleep_ticks < tb->sleep_ticks;
-}
-
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
    be turned on. */
 void
 timer_sleep (int64_t ticks) 
 {
-/************> old way <*************/
-  //int64_t start = timer_ticks ();
-  // while (timer_elapsed (start) < ticks) 
-  // thread_yield ();
-/***********>end old way <***********/ 
-
-/*************> Our implementation <*****************/
-  //thread_sleep (ticks);
-
+  struct thread *cur_thread;
   enum intr_level old_level;
-  struct thread *t = thread_current ();
 
   ASSERT (intr_get_level () == INTR_ON);
 
+  old_level = intr_disable ();
 
-  if (ticks <= 0)
-    return;
+  /* Get current thread and set wakeup ticks. */
+  cur_thread = thread_current ();
+  cur_thread->wakeup_ticks = timer_ticks () + ticks;
 
-  
-  ASSERT (t->status == THREAD_RUNNING);
-
-  //printf("\nThread is; %s", t->tid);
-  //printf("\nThread to be awaken at: %llu\n", ticks+ timer_ticks());
-  t->sleep_ticks = ticks + timer_ticks ();
-  old_level = intr_disable (); // comment this out for semma
-  //list_wakeup_ticks_insert(&sleep_list,&t->wait_elem);
-  //list_wakeup_ticks_insert(&sleep_list,&t->elem);
-
-  list_insert_ordered (&sleep_list, &t->wait_elem, sleep_ticks_less, NULL);
-
-  sema_init (&t->sleep_sema, 0);
-  sema_down (&t->sleep_sema);
-
-  //thread_block (); // comment this out for semma
+  /* Insert current thread to ordered sleeping list */
+  list_insert_ordered (&sleeping_list, &cur_thread->elem,
+                       thread_wakeup_ticks_less, NULL);
+  thread_block ();
 
   intr_set_level (old_level);
-/**********>End of our implementation <***************/
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -227,85 +187,29 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-//   struct thread * next_thread;
-//   struct list_elem * el;
-
-//   ticks++;
-//   thread_tick ();
-
-//   while (!list_empty(&sleep_list))
-//   {
-//     el = list_pop_front(&sleep_list);
-//     next_thread = list_entry(el,struct thread, wait_elem);
-//     if(ticks < next_thread->sleep_ticks)
-//      { 
-//        list_push_front(&sleep_list,el);
-//        break;
-//      }
-//       //printf("timer_interupt(): Thread ready to be unblocked\n");
-//       sema_up(&next_thread->sleep_sema);
-//       //list_remove(&next_thread->wait_elem);
-//   } //his code from yesterday.
-
-/*****************> Our implementation <***************/ 
-/********> Checks and wakes up sleeping threads <******/
-  struct list_elem *elem_cur;
-  struct thread *t;
+  struct list_elem *pe;
+  struct thread *pt;
   bool preempt = false;
-  
+
   ticks++;
   thread_tick ();
 
-  while (!list_empty(&sleep_list))
-  {
-    elem_cur = list_front (&sleep_list);
-    t = list_entry (elem_cur, struct thread, wait_elem);
-    if (t->sleep_ticks > ticks)
-      break;
-
-    list_remove (elem_cur);
-    //thread_unblock (t);
-    sema_up (&t->sleep_sema);
-    preempt = true;
-  }
-
-   if (preempt)
-     intr_yield_on_return ();
-
-
-/***> Below this is the original copy from thread.c <***/
-/*******************> Also works <**********************/
-   
-  // struct list_elem *elem_cur; 
-  // struct list_elem *elem_next;
-  // struct thread *t;
-  // enum intr_level old_level;
-
-  // if (list_empty (&sleep_list))
-  //   return;
-
-  // elem_cur = list_begin (&sleep_list);
-  // while (elem_cur != list_end (&sleep_list))
-  // {
-  //   elem_next = list_next (elem_cur);
-  //   t = list_entry (elem_cur, struct thread, elem);
-  //   if (t->sleep_ticks > timer_ticks())
-  //     break;
-    
-  //   old_level = intr_disable (); // comment this out for semma
-  //   list_remove (elem_cur);
-  //   //sema_up (&t->sleep_sema);
-  //   thread_unblock (t); // comment this out for semma
-  //   intr_set_level (old_level); // comment this out for semma
-
-  //   elem_cur = elem_next;    
-  // }
-
-
-
-  /*************> End of our implementation <***************/
-
- }
+  /* Check and wake up sleeping threads. */
+  while (!list_empty(&sleeping_list))
+    {
+      pe = list_front (&sleeping_list);
+      pt = list_entry (pe, struct thread, elem);
+      if (pt->wakeup_ticks > ticks)
+        {
+          break;
+        }
+      list_remove (pe);
+      thread_unblock (pt);
+      preempt = true;
+    }
+  if (preempt)
+    intr_yield_on_return ();
+}
 
 /* Returns true if LOOPS iterations waits for more than one timer
    tick, otherwise false. */
