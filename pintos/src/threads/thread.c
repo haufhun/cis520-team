@@ -201,8 +201,12 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
-  /* Test preemtpion. */
-  thread_test_preemption ();
+  // test if we need to preempt or not
+  struct thread *curr_thread = thread_current();
+  if(t->priority > curr_thread->priority)
+  {
+    thread_yield();
+  }
 
   return tid;
 }
@@ -241,7 +245,7 @@ thread_unblock (struct thread *t)
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
   list_insert_ordered (&ready_list, &t->elem,
-                       thread_priority_large, NULL);
+                       thread_priority_more, NULL);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -313,7 +317,7 @@ thread_yield (void)
   old_level = intr_disable ();
   if (cur != idle_thread) 
     list_insert_ordered (&ready_list, &cur->elem,
-                         thread_priority_large, NULL);
+                         thread_priority_more, NULL);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -405,7 +409,7 @@ thread_donate_priority (struct thread *t)
     {
       list_remove (&t->elem);
       list_insert_ordered (&ready_list, &t->elem,
-                           thread_priority_large, NULL);
+                           thread_priority_more, NULL);
     }
   intr_set_level (old_level);
 }
@@ -475,26 +479,13 @@ thread_get_recent_cpu (void)
   return 0;
 }
 
-/* Compare wakeup ticks of two threads */
-bool
-thread_wakeup_ticks_less(const struct list_elem *a,
-                         const struct list_elem *b,
-                         void *aux UNUSED)
+/* Compare priority of two threads. */
+bool thread_priority_more(const struct list_elem *new_elem, const struct list_elem *cur_elem, void *aux UNUSED)
 {
-  struct thread *pta = list_entry (a, struct thread, elem);
-  struct thread *ptb = list_entry (b, struct thread, elem);
-  return pta->wakeup_ticks < ptb->wakeup_ticks;
-}
+  struct thread *new_thread = list_entry (new_elem, struct thread, elem);
+  struct thread *cur_thread = list_entry (cur_elem, struct thread, elem);
 
-/* Compare priority of two thread. */
-bool
-thread_priority_large(const struct list_elem *a,
-                      const struct list_elem *b,
-                      void *aux UNUSED)
-{
-  struct thread *pta = list_entry (a, struct thread, elem);
-  struct thread *ptb = list_entry (b, struct thread, elem);
-  return pta->priority > ptb->priority;
+  return new_thread->priority > cur_thread->priority;
 }
 
 

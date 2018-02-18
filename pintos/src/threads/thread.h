@@ -103,7 +103,9 @@ struct thread
     struct lock *lock_waiting;          /* Lock waiting on for priority donation. */
 
     int64_t wakeup_ticks;               /* Wakeup ticks used by timer sleep */
-    
+    struct list_elem sleep_elem;        /* Sleep list element. */
+    struct semaphore timer_sema;        /* Semaphore used in timer_sleep. */
+
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -157,11 +159,8 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
-bool thread_wakeup_ticks_less(const struct list_elem *a,
-                             const struct list_elem *b,
-                             void *aux);
-bool thread_priority_large(const struct list_elem *a,
-                          const struct list_elem *b,
+bool thread_priority_more(const struct list_elem *,
+                          const struct list_elem *,
                           void *aux);
 
 #endif /* threads/thread.h */

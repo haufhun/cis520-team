@@ -17,7 +17,8 @@ struct lock test_lock;
 void
 test_my_alarm (void) 
 {
-  timer_sleep (1000);
+  printf("About to sleep.\n");
+  timer_sleep (10);
   printf("test_my_alarm(): Thread actually awaken at: %llu\n", timer_ticks());
   timer_sleep (1000);
   printf("test_my_alarm(): Thread actually awaken at: %llu\n", timer_ticks());
@@ -35,8 +36,8 @@ void test_my_thread (void)
     thread_create ("Thread 1", PRI_DEFAULT, thread1, NULL);
     timer_sleep(10); // main thread goes to sleep
     
-    // thread_create ("Thread 2", PRI_DEFAULT+1, thread2, NULL);
-    // timer_sleep(10);  // main thread goes to sleep 
+    thread_create ("Thread 2", PRI_DEFAULT+1, thread2, NULL);
+    timer_sleep(10);  // main thread goes to sleep 
     
     thread_create ("Thread 3", PRI_MAX, thread3, NULL);
     
