@@ -5,15 +5,7 @@
 #include "threads/thread.h"
 
 static void syscall_handler (struct intr_frame *);
-
-void syscall0xff(struct intr_frame *f)
-{
-  printf("%c", f->ebx);
-}
-void syscall0x00(void)
-{
-   thread_exit ();
-}
+static void sys_write_handle(int fd, char * buffer, unsigned size);
 
 void
 syscall_init (void) 
@@ -24,19 +16,27 @@ syscall_init (void)
 static void
 syscall_handler (struct intr_frame *f) 
 {
- // printf("%c", f->ebx);
-  switch(f->eax) {
-      case 0xff:
-        syscall0xff(f);
-        break;
-      case 0x00:
-        syscall0x00();
-        break;
-      default:
-        printf ("system call!\n");
-        break;
+  int * stack_pointer;
+
+  stack_pointer = f->esp;
+
+  switch(*stack_pointer) {
+    case SYS_WRITE:
+      sys_write_handle((int) *(stack_pointer+1), (char *) *(stack_pointer+2), (unsigned) *(stack_pointer +3));
+      break;
+    case SYS_EXIT:
+      thread_exit ();
+      break;
+    default:
+      printf ("system call!\n");
+      break;
   }
-  // printf ("system call!\n");
-  // printf("%c", f->ebx);
-  // thread_exit ();
+}
+
+static void sys_write_handle(int fd, char * buffer, unsigned size)
+{
+  int i;
+  
+  for (i = 0; i < size; i++)
+    printf("%c", buffer[i]);
 }
