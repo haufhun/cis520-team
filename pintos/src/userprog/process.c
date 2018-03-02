@@ -198,7 +198,7 @@ struct Elf32_Phdr
 #define PF_W 2          /* Writable. */
 #define PF_R 4          /* Readable. */
 
-static bool setup_stack (void **esp);
+static bool setup_stack (void **esp,  char *file_name);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -217,16 +217,27 @@ load (const char *file_name, void (**eip) (void), void **esp)
   off_t file_ofs;
   bool success = false;
   int i;
+  char * exe_file_name;
+  char * save_ptr;
 
-  file_name = (const char *) "echo"; // take this out eventually
+
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
     goto done;
   process_activate ();
   
+  /* Get the file name. */
+  exe_file_name = malloc (strlen(file_name)+1);
+  strlcpy(exe_file_name, file_name, strlen(file_name));
+ 
+  exe_file_name = strtok_r(exe_file_name," ",&save_ptr);
+
   /* Open executable file. */
-  file = filesys_open (file_name);
+  file = filesys_open (exe_file_name);
+  //TODO : Free exe_file_name
+
+
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
@@ -307,7 +318,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
     }
 
   /* Set up stack. */
-  if (!setup_stack (esp))
+  if (!setup_stack (esp, file_name))
     goto done;
 
   /* Start address. */
@@ -439,7 +450,7 @@ uint32_t push_arg(uint32_t * stack_ptr, uint32_t arg)
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
 static bool
-setup_stack (void **esp) 
+setup_stack (void **esp, char *file_name) 
 {
   uint8_t *kpage;
   bool success = false;
@@ -454,13 +465,58 @@ setup_stack (void **esp)
       else
         palloc_free_page (kpage);
     }
+
+  char *token, *save_ptr, *program_name;
+  int argc = 0, i;
+       
+  for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
+    argc++;
+
+  char **argv = calloc(argc, sizeof(int));
+  *argv = "x\0";
+  
+  (*esp)--;
+  memcpy(*esp, argv[0], 2*sizeof(char)); // this works
+  
+  char ** test2 = esp;
+  printf("char: %c\n", **test2); // c010afa0
+
+  *esp -= argc*sizeof(int); //?
+  memcpy(*esp, argv, argc*sizeof(int)); // ?
+  int * test = esp;
+  printf("int stuff?: %x\n", test);
+  
+  // stack_ptr = *esp;
+  // stack_ptr = push_arg(stack_ptr, 0);// argc
+  
+  // int * test = esp;
+  // printf("Stack = %d", test);
+  // memcpy(--esp, argv, sizeof(argv)); // pointer to x
+  
+  
+
+  program_name = strtok_r (file_name, " ", &save_ptr);
+
   stack_ptr = *esp;
-  stack_ptr =push_arg(stack_ptr, 0x00FF0000); //pointer to argv
-  stack_ptr =push_arg( stack_ptr, 0x5A5A5A5A);// argc
-  stack_ptr = push_arg(stack_ptr, 0x00223344); // name of program
+  stack_ptr = push_arg( stack_ptr, argv);// argc
+  stack_ptr = push_arg( stack_ptr, argc);// argc
+  stack_ptr = push_arg( stack_ptr, program_name);// argc
   *esp = stack_ptr;
 
-  ASSERT( *esp == (PHYS_BASE-12)); // used to see if we get to infinate loop.
+  // printf("Char in here: %c\n", **test);
+
+
+
+  // for (token = strtok_r (file_name, " ", &save_ptr),i=0; token != NULL; token = strtok_r (NULL, " ", &save_ptr),i++)
+  // {
+  //   *esp -= strlen(token) + 1;
+  //   memcpy(*esp,token,strlen(token) + 1);
+  //   hex_dump(*esp,*esp,PHYS_BASE-(*esp),true);
+
+  //   argv[i]=*esp;
+  // }
+
+  // ASSERT( *esp == (PHYS_BASE-12)); // used to see if we get to infinate loop.
   
   return success;
 }
