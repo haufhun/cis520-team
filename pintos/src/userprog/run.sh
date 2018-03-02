@@ -14,6 +14,6 @@ read -rp 'Press enter to continue...' secondyn </dev/tty
 echo Entering directory /userprog/build ...
 cd build
 pintos-mkdisk filesys.dsk --filesys-size=2;
-pintos -f -q;
-pintos -p ../../examples/echo -a echo -- -q;
-pintos -q run 'echo x';
+pintos -v -- -f -q;
+pintos -v -p ../../examples/echo -a echo -- -q;
+pintos -v -- -q run 'echo x';
