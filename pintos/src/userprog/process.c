@@ -101,6 +101,8 @@ process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
+  printf("%s: exit(%d)\n", cur->process_name, cur->exit_status);
+
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
@@ -232,6 +234,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
   strlcpy(exe_file_name, file_name, strlen(file_name));
  
   exe_file_name = strtok_r(exe_file_name," ",&save_ptr);
+  t->process_name = exe_file_name;
 
   /* Open executable file. */
   file = filesys_open (exe_file_name);

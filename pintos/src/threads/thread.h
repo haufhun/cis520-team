@@ -104,6 +104,10 @@ struct thread
     /* Parent/child processes */
      bool ex;
      struct thread* parent;
+
+     /* TO exit properly*/
+     int exit_status;
+     char * process_name;
   };
 
 /* If false (default), use round-robin scheduler.

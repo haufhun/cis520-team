@@ -7,11 +7,15 @@
 
 static void syscall_handler (struct intr_frame *);
 static void sys_write_handle(int fd, char * buffer, unsigned size);
+static void sys_exit_handle(int status);
+// we may need a lock here.. for the file system
+// struct lock fs_lock;
 
 void
 syscall_init (void) 
 {
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
+  // lock_init(&fs_lock);
 }
 
 static void
@@ -26,8 +30,8 @@ syscall_handler (struct intr_frame *f)
       shutdown_power_off();
       break;
     case SYS_EXIT: // 1
- 		  thread_current()->parent->ex = true;
-      thread_exit ();
+      // f->eax = (uint32_t) *(f->esp + 1); // this is needed if we need to return the exit status. Idk if we do
+      sys_exit_handle(*(stack_pointer+1));
       break;
     case SYS_WRITE: // 9
       sys_write_handle((int) *(stack_pointer+1), (char *) *(stack_pointer+2), (unsigned) *(stack_pointer +3));
@@ -44,4 +48,14 @@ static void sys_write_handle(int fd, char * buffer, unsigned size)
 
   for (i = 0; i < size; i++)
     printf("%c", buffer[i]);
+}
+
+static void sys_exit_handle(int status)
+{
+  struct thread *t = thread_current();
+
+  t->parent->ex = true;
+  t->exit_status = status;
+  
+  thread_exit ();
 }
