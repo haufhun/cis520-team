@@ -231,7 +231,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
   
   /* Get the file name. */
   exe_file_name = malloc (strlen(file_name)+1);
-  strlcpy(exe_file_name, file_name, strlen(file_name));
+  strlcpy(exe_file_name, file_name, strlen(file_name)+1);
  
   exe_file_name = strtok_r(exe_file_name," ",&save_ptr);
   t->process_name = exe_file_name;
@@ -464,12 +464,12 @@ setup_stack (void **esp, char *file_name)
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE;
+        *esp = PHYS_BASE - 12;
       else
         palloc_free_page (kpage);
     }
 
-  char *token, *save_ptr, *program_name;
+  /*char *token, *save_ptr, *program_name;
   int argc = 0, i;
        
   for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
@@ -518,8 +518,8 @@ setup_stack (void **esp, char *file_name)
 
   //   argv[i]=*esp;
   // }
-
-  // ASSERT( *esp == (PHYS_BASE-12)); // used to see if we get to infinate loop.
+  */
+  ASSERT( *esp == (PHYS_BASE-12)); // used to see if we get to infinate loop.
   
   return success;
 }
