@@ -17,12 +17,11 @@
 #include "threads/palloc.h"
 #include "threads/thread.h"
 #include "threads/vaddr.h"
-#include "devices/timer.h"
+
+#define NEW_USR_PAGE = 0x08048000 - PGSIZE
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
-static uint8_t * push_arg(uint8_t * stack_ptr, uint32_t *arg);
-static uint8_t * push_string(uint8_t * stack_ptr, char * arg, size_t size);
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -51,11 +50,14 @@ process_execute (const char *file_name)
 /* A thread function that loads a user process and starts it
    running. */
 static void
-start_process (void *file_name_)
+start_process (void *cmd_string)
 {
-  char *file_name = file_name_;
+  char file_name [15];
   struct intr_frame if_;
   bool success;
+  struct thread *t = thread_current();
+  
+  strlcpy(file_name, cmd_string, strcspn(cmd_string, " \t")+1);
 
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
@@ -65,7 +67,7 @@ start_process (void *file_name_)
   success = load (file_name, &if_.eip, &if_.esp);
 
   /* If load failed, quit. */
-  palloc_free_page (file_name);
+  palloc_free_page (cmd_string);
   if (!success) 
     thread_exit ();
 
@@ -77,6 +79,57 @@ start_process (void *file_name_)
      and jump to it. */
   asm volatile ("movl %0, %%esp; jmp intr_exit" : : "g" (&if_) : "memory");
   NOT_REACHED ();
+
+/********************Start of our code*************************************
+// TODO: allocate a page
+  success = false;
+  
+  kpage = palloc_get_page (PAL_USER | PAL_ZERO);
+  if (kpage != NULL) 
+  {
+    success = install_page ((uint8_t *) NEW_USR_PAGE, kpage, true);
+    if (!success)
+      palloc_free_page (kpage);
+  }
+
+  // TODO: loop through and put the tokens into the page
+  
+  for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
+  {
+    // TODO: Copy contents of each token into page
+    memcpy(kpage, token, strlen(token)+1);
+    kpage += strlen(token)+1;
+    argc++;
+  }
+
+  stack_ptr = *esp;  
+  // TODO: save ptr's to arguments onto stack, starting at PHYS_BASE - 128*4
+
+
+  stack_ptr = *esp;
+  // TODO: Push pointer to the first arg pointer.. CHECK that this is right
+    stack_ptr = push_arg(stack_ptr, *esp);
+  // TODO: push argc .. this should be right
+  stack_ptr = push_arg(stack_ptr, argc);
+  // TODO: push ret. addr... this should be right
+  stack_ptr = push_arg(stack_ptr, 0);
+
+  *esp = stack_ptr;
+  
+
+
+  // move cmd string into a page
+    // this must be accessible, and not use by any other thing
+    // so, we copy in "echo this is userspace"
+    // we don't HAVE to push the pointers onto the stack 
+  // esp = esp - (128*4);
+  // we put the pointers starting at esp, going up
+      // first ptr to echo, then ptr to this, then ptr to is, then ptr to userspace
+  // then push a pointer to the pointer to echo
+  // then push argc
+  // then push the ret. addr (arbitrary)
+  // then the esp should be pointing to ret. addr*/
+
 }
 
 /* Waits for thread TID to die and returns its exit status.  If
@@ -90,7 +143,7 @@ start_process (void *file_name_)
    does nothing. */
 int
 process_wait (tid_t child_tid UNUSED) 
-{
+{  
   // timer_sleep(500);
   while(!thread_current()->ex) ;
   return -1;
@@ -203,7 +256,7 @@ struct Elf32_Phdr
 #define PF_W 2          /* Writable. */
 #define PF_R 4          /* Readable. */
 
-static bool setup_stack (void **esp,  char *file_name);
+static bool setup_stack (void **esp);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -222,34 +275,20 @@ load (const char *file_name, void (**eip) (void), void **esp)
   off_t file_ofs;
   bool success = false;
   int i;
-  char * exe_file_name;
-  char * save_ptr;
-
 
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
     goto done;
   process_activate ();
-  
-  /* Get the file name. */
-  exe_file_name = malloc (strlen(file_name)+1);
-  strlcpy(exe_file_name, file_name, strlen(file_name)+1);
- 
-  exe_file_name = strtok_r(exe_file_name," ",&save_ptr);
-  t->process_name = exe_file_name;
 
   /* Open executable file. */
-  file = filesys_open (exe_file_name);
-  //TODO : Free exe_file_name
-
-
+  file = filesys_open (file_name);
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
       goto done; 
     }
-  //ASSERT(false);//take this out eventually
 
   /* Read and verify executable header. */
   if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr
@@ -324,7 +363,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
     }
 
   /* Set up stack. */
-  if (!setup_stack (esp, file_name))
+  if (!setup_stack (esp))
     goto done;
 
   /* Start address. */
@@ -453,141 +492,23 @@ static uint8_t * push_arg(uint8_t *stack_ptr, uint32_t *arg)
   *stack_ptr = arg;
   return stack_ptr;
 }
-
-static uint8_t * push_string(uint8_t* stack_ptr, char* arg, size_t size)
-{
-  int i;
-  
-  for(i = 0; i < size; i++)
-  {
-    stack_ptr--;
-    *stack_ptr = *(arg+i); 
-  }
-
-  return stack_ptr;
-}
-
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
 static bool
-setup_stack (void **esp, char *file_name) 
+setup_stack (void **esp) 
 {
   uint8_t *kpage;
   bool success = false;
-  uint8_t * stack_ptr; //for test
 
   kpage = palloc_get_page (PAL_USER | PAL_ZERO);
   if (kpage != NULL) 
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE;
+        *esp = PHYS_BASE -12;
       else
         palloc_free_page (kpage);
     }
-
-    /* 
-      What we need to do is this: 
-        push "x\0"
-        push "echo\0"
-        push $0 // word-align to a multiple of 4
-        push $0 // 0 for argv
-        push &"x\0" // the address of x
-        push &"echo\0" // the address of echo
-        push -4(esp) // the address pointing to the address of echo
-        push argc // the argument count
-        push $0 // address of ret. addr. Just need it to be zero, it doesn't matter
-    */
-
-  stack_ptr = *esp;
-  char * temp = "x\0";
-  uint32_t *xptr, *echoptr;
-  
-  printf("Addr before pushing x = %x\n", stack_ptr);
-  stack_ptr = push_string(stack_ptr, temp, strlen(temp)+1);
-  xptr = stack_ptr;
-
-  printf("Addr after pushing x, before pushing echo = %x\n", stack_ptr);
-  temp = "echo\0";
-  stack_ptr = push_string(stack_ptr, temp, strlen(temp)+1);
-  echoptr = stack_ptr;
-  printf("Addr after pushing echo, before word-align = %x\n", stack_ptr);
-  
-  *(--stack_ptr) = 0; // word-align
-  printf("Addr after word-align, before \\0 for argv = %x\n", stack_ptr);
-
-  stack_ptr = push_arg(stack_ptr, 0);
-  printf("Addr after \\0 for argv, before pointer to x = %x\n", stack_ptr);
-
-  stack_ptr = push_arg(stack_ptr, xptr);  
-  printf("Addr after pointer to x, before pointer to echo = %x\n", stack_ptr);
-
-  stack_ptr = push_arg(stack_ptr, echoptr);  
-  printf("Addr after pointer to echo, before pointer to pointer argv  = %x\n", stack_ptr);
-  echoptr = stack_ptr;
-  
-  stack_ptr = push_arg(stack_ptr, echoptr);  
-  printf("Addr after pointer to pointer argv, before argc  = %x\n", stack_ptr);
-
-  stack_ptr = push_arg(stack_ptr, 2);
-  printf("Addr after argc, before ret. addr  = %x\n", stack_ptr);
-
-  stack_ptr = push_arg(stack_ptr, 0);  
-  printf("Addr after ret. addr, THE END  = %x\n", stack_ptr);
-
-  *esp = stack_ptr;
-
-/* // This is old code. Definitely doesn't work.
-  char *token, *save_ptr, *program_name;
-  int argc = 0, i;
-       
-  for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
-    argc++;
-
-  char **argv = calloc(argc, sizeof(int));
-  *argv = "x\0";
-  
-  (*esp)--;
-  memcpy(*esp, argv[0], 2*sizeof(char)); // this works
-  
-  char ** test2 = esp;
-  printf("char: %c\n", **test2); // c010afa0
-
-  *esp -= argc*sizeof(int); //?
-  memcpy(*esp, argv, argc*sizeof(int)); // ?
-  int * test = esp;
-  printf("int stuff?: %x\n", test);
-  
-  // stack_ptr = *esp;
-  // stack_ptr = push_arg(stack_ptr, 0);// argc
-  
-  // int * test = esp;
-  // printf("Stack = %d", test);
-  // memcpy(--esp, argv, sizeof(argv)); // pointer to x
-  
-  
-
-  program_name = strtok_r (file_name, " ", &save_ptr);
-
-  stack_ptr = *esp;
-  stack_ptr = push_arg( stack_ptr, argv);// argc
-  stack_ptr = push_arg( stack_ptr, argc);// argc
-  stack_ptr = push_arg( stack_ptr, program_name);// argc
-  *esp = stack_ptr;
-
-  // printf("Char in here: %c\n", **test);
-
-
-
-  // for (token = strtok_r (file_name, " ", &save_ptr),i=0; token != NULL; token = strtok_r (NULL, " ", &save_ptr),i++)
-  // {
-  //   *esp -= strlen(token) + 1;
-  //   memcpy(*esp,token,strlen(token) + 1);
-  //   hex_dump(*esp,*esp,PHYS_BASE-(*esp),true);
-
-  //   argv[i]=*esp;
-  // }
-*/
   return success;
 }
 
