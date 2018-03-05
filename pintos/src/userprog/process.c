@@ -18,10 +18,14 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 
-#define NEW_USR_PAGE = 0x08048000 - PGSIZE
+#define NEW_USR_PAGE 0x08048000 - PGSIZE
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
+/* load() helpers. */
+
+static void push_arg(uint32_t **stack_ptr, uint32_t arg);
+static bool install_page (void *upage, void *kpage, bool writable);
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -55,8 +59,10 @@ start_process (void *cmd_string)
   char file_name [15];
   struct intr_frame if_;
   bool success;
-  struct thread *t = thread_current();
+  char *save_ptr, *token, **argv;
+  int argc;
   
+  /* get the actual executable file name for loading the program */
   strlcpy(file_name, cmd_string, strcspn(cmd_string, " \t")+1);
 
   /* Initialize interrupt frame and load executable. */
@@ -65,6 +71,36 @@ start_process (void *cmd_string)
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
   success = load (file_name, &if_.eip, &if_.esp);
+
+  /* Implementation for argument passing. Create a page at 0x08048000
+     and push the command string there. Then, pushing the argv and argc
+     onto the stack, along with a dummy ret. addr which is the file name
+     i.e., it would be 'echo' for echo x. */
+  uint8_t * kpage = palloc_get_page (PAL_USER | PAL_ZERO);
+  if (kpage != NULL) 
+  {
+    if (!(install_page ((uint8_t *) NEW_USR_PAGE, kpage, true)))
+    {
+      palloc_free_page (cmd_string);
+      palloc_free_page (kpage);
+      thread_exit ();
+    }
+  }
+
+  if_.esp = if_.esp - 128*4;
+  argv = if_.esp;
+
+  strlcpy((char *)NEW_USR_PAGE, cmd_string, strlen(cmd_string)+1);
+  
+  argc = 0;
+  for (token = strtok_r ((char *) NEW_USR_PAGE, " \t", &save_ptr); token != NULL; token = strtok_r (NULL, " \t", &save_ptr))
+    argv[argc++] = token;
+
+  push_arg(&if_.esp, (uint32_t) argv);
+  push_arg(&if_.esp, (uint32_t) argc);
+  push_arg(&if_.esp, (uint32_t) &argv[0]); // dummy ret. addr
+
+  /* End implementation for argument passing */
 
   /* If load failed, quit. */
   palloc_free_page (cmd_string);
@@ -79,57 +115,6 @@ start_process (void *cmd_string)
      and jump to it. */
   asm volatile ("movl %0, %%esp; jmp intr_exit" : : "g" (&if_) : "memory");
   NOT_REACHED ();
-
-/********************Start of our code*************************************
-// TODO: allocate a page
-  success = false;
-  
-  kpage = palloc_get_page (PAL_USER | PAL_ZERO);
-  if (kpage != NULL) 
-  {
-    success = install_page ((uint8_t *) NEW_USR_PAGE, kpage, true);
-    if (!success)
-      palloc_free_page (kpage);
-  }
-
-  // TODO: loop through and put the tokens into the page
-  
-  for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
-  {
-    // TODO: Copy contents of each token into page
-    memcpy(kpage, token, strlen(token)+1);
-    kpage += strlen(token)+1;
-    argc++;
-  }
-
-  stack_ptr = *esp;  
-  // TODO: save ptr's to arguments onto stack, starting at PHYS_BASE - 128*4
-
-
-  stack_ptr = *esp;
-  // TODO: Push pointer to the first arg pointer.. CHECK that this is right
-    stack_ptr = push_arg(stack_ptr, *esp);
-  // TODO: push argc .. this should be right
-  stack_ptr = push_arg(stack_ptr, argc);
-  // TODO: push ret. addr... this should be right
-  stack_ptr = push_arg(stack_ptr, 0);
-
-  *esp = stack_ptr;
-  
-
-
-  // move cmd string into a page
-    // this must be accessible, and not use by any other thing
-    // so, we copy in "echo this is userspace"
-    // we don't HAVE to push the pointers onto the stack 
-  // esp = esp - (128*4);
-  // we put the pointers starting at esp, going up
-      // first ptr to echo, then ptr to this, then ptr to is, then ptr to userspace
-  // then push a pointer to the pointer to echo
-  // then push argc
-  // then push the ret. addr (arbitrary)
-  // then the esp should be pointing to ret. addr*/
-
 }
 
 /* Waits for thread TID to die and returns its exit status.  If
@@ -376,10 +361,6 @@ load (const char *file_name, void (**eip) (void), void **esp)
   file_close (file);
   return success;
 }
-
-/* load() helpers. */
-
-static bool install_page (void *upage, void *kpage, bool writable);
 
 /* Checks whether PHDR describes a valid, loadable segment in
    FILE and returns true if so, false otherwise. */
@@ -485,13 +466,12 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
   return true;
 }
 
-static uint8_t * push_arg(uint8_t *stack_ptr, uint32_t *arg)
+static void push_arg(uint32_t **stack_ptr, uint32_t arg)
 {
-  printf("Address putting on stack = %x\n", arg);
-  stack_ptr -= 4;
-  *stack_ptr = arg;
-  return stack_ptr;
+  (*stack_ptr)--;
+  **stack_ptr = arg;
 }
+
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
 static bool
@@ -505,7 +485,7 @@ setup_stack (void **esp)
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE -12;
+        *esp = PHYS_BASE;
       else
         palloc_free_page (kpage);
     }
