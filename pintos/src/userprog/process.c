@@ -21,6 +21,8 @@
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
+static uint8_t * push_arg(uint8_t * stack_ptr, uint32_t *arg);
+static uint8_t * push_string(uint8_t * stack_ptr, char * arg, size_t size);
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -102,6 +104,7 @@ process_exit (void)
   uint32_t *pd;
 
   printf("%s: exit(%d)\n", cur->process_name, cur->exit_status);
+  free(cur->process_name);
 
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
@@ -443,11 +446,25 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
   return true;
 }
 
-uint32_t push_arg(uint32_t * stack_ptr, uint32_t arg)
+static uint8_t * push_arg(uint8_t *stack_ptr, uint32_t *arg)
 {
+  printf("Address putting on stack = %x\n", arg);
+  stack_ptr -= 4;
+  *stack_ptr = arg;
+  return stack_ptr;
+}
+
+static uint8_t * push_string(uint8_t* stack_ptr, char* arg, size_t size)
+{
+  int i;
+  
+  for(i = 0; i < size; i++)
+  {
     stack_ptr--;
-    *stack_ptr = arg;
-    return stack_ptr;
+    *stack_ptr = *(arg+i); 
+  }
+
+  return stack_ptr;
 }
 
 /* Create a minimal stack by mapping a zeroed page at the top of
@@ -457,19 +474,71 @@ setup_stack (void **esp, char *file_name)
 {
   uint8_t *kpage;
   bool success = false;
-  uint32_t * stack_ptr; //for test
+  uint8_t * stack_ptr; //for test
 
   kpage = palloc_get_page (PAL_USER | PAL_ZERO);
   if (kpage != NULL) 
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE - 12;
+        *esp = PHYS_BASE;
       else
         palloc_free_page (kpage);
     }
 
-  /*char *token, *save_ptr, *program_name;
+    /* 
+      What we need to do is this: 
+        push "x\0"
+        push "echo\0"
+        push $0 // word-align to a multiple of 4
+        push $0 // 0 for argv
+        push &"x\0" // the address of x
+        push &"echo\0" // the address of echo
+        push -4(esp) // the address pointing to the address of echo
+        push argc // the argument count
+        push $0 // address of ret. addr. Just need it to be zero, it doesn't matter
+    */
+
+  stack_ptr = *esp;
+  char * temp = "x\0";
+  uint32_t *xptr, *echoptr;
+  
+  printf("Addr before pushing x = %x\n", stack_ptr);
+  stack_ptr = push_string(stack_ptr, temp, strlen(temp)+1);
+  xptr = stack_ptr;
+
+  printf("Addr after pushing x, before pushing echo = %x\n", stack_ptr);
+  temp = "echo\0";
+  stack_ptr = push_string(stack_ptr, temp, strlen(temp)+1);
+  echoptr = stack_ptr;
+  printf("Addr after pushing echo, before word-align = %x\n", stack_ptr);
+  
+  *(--stack_ptr) = 0; // word-align
+  printf("Addr after word-align, before \\0 for argv = %x\n", stack_ptr);
+
+  stack_ptr = push_arg(stack_ptr, 0);
+  printf("Addr after \\0 for argv, before pointer to x = %x\n", stack_ptr);
+
+  stack_ptr = push_arg(stack_ptr, xptr);  
+  printf("Addr after pointer to x, before pointer to echo = %x\n", stack_ptr);
+
+  stack_ptr = push_arg(stack_ptr, echoptr);  
+  printf("Addr after pointer to echo, before pointer to pointer argv  = %x\n", stack_ptr);
+  echoptr = stack_ptr;
+  
+  stack_ptr = push_arg(stack_ptr, echoptr);  
+  printf("Addr after pointer to pointer argv, before argc  = %x\n", stack_ptr);
+
+  stack_ptr = push_arg(stack_ptr, 2);
+  printf("Addr after argc, before ret. addr  = %x\n", stack_ptr);
+
+  stack_ptr = push_arg(stack_ptr, 0);  
+  printf("Addr after ret. addr, THE END  = %x\n", stack_ptr);
+
+  *esp = stack_ptr;
+
+/* // This is old code. Definitely doesn't work.
+  char *token, *save_ptr, *program_name;
   int argc = 0, i;
        
   for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr))
@@ -518,9 +587,7 @@ setup_stack (void **esp, char *file_name)
 
   //   argv[i]=*esp;
   // }
-  */
-  ASSERT( *esp == (PHYS_BASE-12)); // used to see if we get to infinate loop.
-  
+*/
   return success;
 }
 

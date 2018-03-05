@@ -5,12 +5,16 @@ int
 main (int argc, char **argv)
 {
   int i;
-  printf("Hello World\n");
-  // printf("First char: %s\n", argv[0]);
+  // printf("Hello World\n");
+  // printf("size: %d\n", argc);
 
-  // for (i = 0; i < argc; i++)
-  //   printf ("%s ", argv[i]);
-  // printf ("\n");
+  // printf("Addr of argv = %x\n", &argv);
+  // printf("Addr of argv = %x\n", argv);  
+  // printf("Addr of argv = %x\n", argv-1);
+
+  for (i = 0; i < argc; i++)
+    printf ("%s ", argv[i]);
+  printf ("\n");
 
   return EXIT_SUCCESS;
 }
