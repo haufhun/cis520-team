@@ -133,7 +133,6 @@ start_process (void *cmd_string)
 int
 process_wait (tid_t child_tid UNUSED) 
 {  
-  // timer_sleep(500);
   while(!thread_current()->ex) ;
   return -1;
 }
@@ -144,8 +143,6 @@ process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
-
-  printf("%s: exit(%d)\n", cur->name, cur->exit_status);
 
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
