@@ -44,6 +44,10 @@ process_execute (const char *file_name)
     return TID_ERROR;
   strlcpy (fn_copy, file_name, PGSIZE);
 
+  /*Parses the passed in cmd string to contain only the file name without args. */
+  char *save_ptr;
+  file_name = strtok_r (file_name," ",&save_ptr);
+
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
@@ -141,8 +145,7 @@ process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
-  printf("%s: exit(%d)\n", cur->process_name, cur->exit_status);
-  free(cur->process_name);
+  printf("%s: exit(%d)\n", cur->name, cur->exit_status);
 
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
