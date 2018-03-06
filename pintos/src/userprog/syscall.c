@@ -102,7 +102,8 @@ static void sys_exit_handle(int status)
 
   t->parent->ex = true;
   t->exit_status = status;
-  
+
+  printf("%s: exit(%d)\n", t->name, status);
   thread_exit ();
 }
 
