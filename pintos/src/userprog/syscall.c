@@ -1,5 +1,6 @@
 #include "userprog/syscall.h"
 #include <stdio.h>
+#include <string.h>
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
 #include "threads/thread.h"
@@ -9,13 +10,14 @@
 
 static void syscall_handler (struct intr_frame *);
 
-static void copy_in(int *, uint32_t *, size_t);
-
 static void sys_hault_handle(void);
 static void sys_exit_handle(int );
 static int sys_open_handle (const char *);
 static void sys_write_handle(int, char *, unsigned);
 static void sys_close_handle(int);
+
+static void copy_in(int *, uint32_t *, size_t);
+static char * copy_in_string(char *);
 
 static int sys_default (int); // remove this later - after all sys calls implemented
 
@@ -94,23 +96,6 @@ static void syscall_handler (struct intr_frame *f)
   f->eax = sc->func (args[0], args[1], args[2]);
 }
 
-static void copy_in(int * argv, uint32_t *stp, size_t size)
-{
-	if (is_user_vaddr(stp))
-	{
-	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
-	  
-    if (page_ptr)
-    {
-      memcpy(argv, stp, size);
-      return;
-    }
-	}
-
-  sys_exit_handle(-1);
-  return 0;
-}
-
 static void sys_hault_handle(void)
 {
   shutdown_power_off();
@@ -134,6 +119,9 @@ static int sys_open_handle (const char *ufile)
 
   // kfile = copy_in_string (ufile);
 
+  if(!ufile || !is_user_vaddr(ufile))
+    return -1;
+
   // int handle = -1; //idk what this is used for : HUNTER
   fd = malloc (sizeof *fd);
 
@@ -142,7 +130,7 @@ static int sys_open_handle (const char *ufile)
     lock_acquire (&fs_lock);
     fd->fp = filesys_open (ufile);
     lock_release (&fs_lock);
-    
+
     if (fd->fp)
     {
       t = thread_current();
@@ -185,8 +173,6 @@ static void sys_close_handle(int fd_num)
   struct thread *t = thread_current ();
   bool didIt = false;
 
-  printf("FD # = %d\n", fd_num);
-  
   if(fd_num <= STDOUT_FILENO)
     return;
 
@@ -208,6 +194,49 @@ static void sys_close_handle(int fd_num)
     free(fd);
 
   lock_release(&fs_lock);    
+}
+
+static void copy_in(int * argv, uint32_t *stp, size_t size)
+{
+	if (is_user_vaddr(stp))
+	{
+	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
+	  
+    if (page_ptr)
+    {
+      memcpy(argv, stp, size);
+      return;
+    }
+	}
+
+  sys_exit_handle(-1);
+  return 0;
+}
+
+static char * copy_in_string(char * string)
+{
+  char * newString;
+  size_t size;
+
+  if(!string)
+    return NULL;
+
+	if (is_user_vaddr(string))
+	{
+	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, string);
+	  
+    if (page_ptr)
+    {
+      size = strlen(string)+1;
+      newString = malloc(size);
+      strlcpy(newString, string, size);
+      
+      return newString;
+    }
+	}
+
+  sys_exit_handle(-1);
+  return NULL;
 }
 
 static int sys_default (int arg0) // remove this later - after all sys calls implemented
