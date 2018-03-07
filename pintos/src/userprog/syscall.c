@@ -158,6 +158,7 @@ static int sys_open_handle (const char *ufile)
 static void sys_write_handle(int fd, char * buffer, unsigned size)
 {
   int i;
+
   if(fd == 1)
   {
     for (i = 0; i < size; i++)
@@ -175,9 +176,15 @@ static void sys_close_handle(int fd_num)
 	struct list_elem *e;
 	struct file_descriptor *fd;
   struct thread *t = thread_current ();
-  
-  lock_acquire(&fs_lock);
+  bool didIt = false;
 
+  printf("FD # = %d\n", fd_num);
+  
+  if(fd_num < 2)
+    return;
+
+  lock_acquire(&fs_lock);
+  
   for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
   {
     fd = list_entry (e, struct file_descriptor, elem);
@@ -186,10 +193,12 @@ static void sys_close_handle(int fd_num)
     {
       file_close(fd->fp);
       list_remove(e);
+      didIt = true;
     }
   }
 
-  free(fd);
+  if(didIt)
+    free(fd);
 
   lock_release(&fs_lock);    
 }
