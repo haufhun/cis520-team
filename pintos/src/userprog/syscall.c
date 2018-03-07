@@ -5,6 +5,7 @@
 #include "threads/thread.h"
 #include "threads/init.h"
 #include "threads/vaddr.h"
+#include "threads/synch.h"
 
 static void syscall_handler (struct intr_frame *);
 
@@ -17,8 +18,7 @@ static void sys_write_handle(int fd, char * buffer, unsigned size);
 
 static int sys_default (int arg0); // remove this later - after all sys calls implemented
 
-// we may need a lock here.. for the file system
-// struct lock fs_lock;
+struct lock fs_lock;
 
 
 /* This Table and struct are taken from Project2Session.pdf
@@ -55,7 +55,7 @@ static const struct syscall syscall_table[] =
 void syscall_init (void) 
 {
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
-  // lock_init(&fs_lock);
+  lock_init(&fs_lock);
 }
 
 /* This method is taken from the Proj2Session.pdf 
@@ -90,11 +90,12 @@ static void copy_in(int * argv, uint32_t *stp, size_t size)
 	if (is_user_vaddr(stp))
 	{
 	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
-	  if (page_ptr)
-      {
-        memcpy(argv, stp, size);
-        return;
-      }
+	  
+    if (page_ptr)
+    {
+      memcpy(argv, stp, size);
+      return;
+    }
 	}
 
   sys_exit_handle(-1);
@@ -119,6 +120,23 @@ static void sys_exit_handle(int status)
 
 static int sys_open_handle (const char *ufile)
 {
+  struct file* file_ptr;
+  
+  lock_acquire(&fs_lock);
+  file_ptr = filesys_open (ufile);
+  lock_release(&fs_lock);
+
+  if(file_ptr)  
+  {
+    // struct proc_file *pfile = malloc(sizeof(*pfile));
+    // pfile->ptr = file_ptr;
+    // pfile->fd = thread_current()->fd_count;
+    // thread_current()->fd_count++;
+    // list_push_back (&thread_current()->files, &pfile->elem);
+    // return pfile->fd;
+    return 2;
+  }
+  return -1;
 // char *kfile = copy_in_string (ufile);
 //
 //  struct file_descriptor *fd;
@@ -131,7 +149,7 @@ static int sys_open_handle (const char *ufile)
 // fd->file = filesys_open (kfile);
 // if (fd->file != NULL)
 // // ... add to list of fd's associated with thread
-  return -1;
+  // return -1;
 }
 
 static void sys_write_handle(int fd, char * buffer, unsigned size)
