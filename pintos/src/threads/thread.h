@@ -107,7 +107,6 @@ struct thread
 
      /* TO exit properly*/
      int exit_status;
-     char * process_name;
   };
 
 /* If false (default), use round-robin scheduler.
