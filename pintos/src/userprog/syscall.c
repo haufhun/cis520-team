@@ -9,16 +9,17 @@
 
 static void syscall_handler (struct intr_frame *);
 
-static void copy_in(int * argv, uint32_t * stp, size_t size);
+static void copy_in(int *, uint32_t *, size_t);
 
 static void sys_hault_handle(void);
-static void sys_exit_handle(int status);
-static int sys_open_handle (const char *ufile);
-static void sys_write_handle(int fd, char * buffer, unsigned size);
+static void sys_exit_handle(int );
+static int sys_open_handle (const char *);
+static void sys_write_handle(int, char *, unsigned);
+static void sys_close_handle(int);
 
-static int sys_default (int arg0); // remove this later - after all sys calls implemented
+static int sys_default (int); // remove this later - after all sys calls implemented
 
-struct lock fs_lock;
+static struct lock fs_lock;
 
 
 /* This Table and struct are taken from Project2Session.pdf
@@ -32,6 +33,14 @@ struct syscall
 {
   size_t arg_cnt; /* Number of arguments. */
   syscall_function *func; /* Implementation. */
+};
+
+/* A file descriptor */
+struct file_descriptor 
+{
+  int count;
+  struct file *fp;
+  struct list_elem elem;
 };
 
 /* Table of system calls. */
@@ -49,7 +58,7 @@ static const struct syscall syscall_table[] =
   {3, (syscall_function *) sys_write_handle},      // write
   {1, (syscall_function *) sys_default},           // seek        
   {1, (syscall_function *) sys_default},           // tell        
-  {1, (syscall_function *) sys_default}            // close        
+  {1, (syscall_function *) sys_close_handle}       // close        
 };
 
 void syscall_init (void) 
@@ -112,7 +121,6 @@ static void sys_exit_handle(int status)
   struct thread *t = thread_current();
 
   t->parent->ex = true;
-  t->exit_status = status;
 
   printf("%s: exit(%d)\n", t->name, status);
   thread_exit ();
@@ -120,44 +128,70 @@ static void sys_exit_handle(int status)
 
 static int sys_open_handle (const char *ufile)
 {
-  struct file* file_ptr;
-  
-  lock_acquire(&fs_lock);
-  file_ptr = filesys_open (ufile);
-  lock_release(&fs_lock);
+  char *kfile;
+  struct file_descriptor *fd;
+  struct thread * t;
 
-  if(file_ptr)  
+  // kfile = copy_in_string (ufile);
+
+  // int handle = -1; //idk what this is used for : HUNTER
+  fd = malloc (sizeof *fd);
+
+  if (fd)
   {
-    // struct proc_file *pfile = malloc(sizeof(*pfile));
-    // pfile->ptr = file_ptr;
-    // pfile->fd = thread_current()->fd_count;
-    // thread_current()->fd_count++;
-    // list_push_back (&thread_current()->files, &pfile->elem);
-    // return pfile->fd;
-    return 2;
+    lock_acquire (&fs_lock);
+    fd->fp = filesys_open (ufile);
+    lock_release (&fs_lock);
+    
+    if (fd->fp)
+    {
+      t = thread_current();
+      fd->count = t->fd_count++;
+      list_push_back (&t->fd_list, &fd->elem);
+      return fd->count;
+    }
   }
+  
   return -1;
-// char *kfile = copy_in_string (ufile);
-//
-//  struct file_descriptor *fd;
-
-// int handle = -1;
-// fd = malloc (sizeof *fd);
-// if (fd != NULL)
-// {
-// lock_acquire (&fs_lock);
-// fd->file = filesys_open (kfile);
-// if (fd->file != NULL)
-// // ... add to list of fd's associated with thread
-  // return -1;
 }
 
 static void sys_write_handle(int fd, char * buffer, unsigned size)
 {
   int i;
+  if(fd == 1)
+  {
+    for (i = 0; i < size; i++)
+      printf("%c", buffer[i]);
+  }
+  else
+  {
+    ASSERT (false);
+    // need to implement writing to a file here
+  }
+}
 
-  for (i = 0; i < size; i++)
-    printf("%c", buffer[i]);
+static void sys_close_handle(int fd_num)
+{
+	struct list_elem *e;
+	struct file_descriptor *fd;
+  struct thread *t = thread_current ();
+  
+  lock_acquire(&fs_lock);
+
+  for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
+  {
+    fd = list_entry (e, struct file_descriptor, elem);
+
+    if(fd->count == fd_num)
+    {
+      file_close(fd->fp);
+      list_remove(e);
+    }
+  }
+
+  free(fd);
+
+  lock_release(&fs_lock);    
 }
 
 static int sys_default (int arg0) // remove this later - after all sys calls implemented
