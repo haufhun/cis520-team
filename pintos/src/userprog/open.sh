@@ -15,4 +15,6 @@ echo Entering directory /userprog/build ...
 cd build
 pintos-mkdisk filesys.dsk --filesys-size=2;
 
-pintos -v -k -T 60 --qemu  --filesys-size=2 -p tests/userprog/open-normal -a open-normal -p ../../tests/userprog/sample.txt -a sample.txt -- -q  -f run open-normal
+# pintos -v -k -T 60 --qemu  --filesys-size=2 -p tests/userprog/open-normal -a open-normal -p ../../tests/userprog/sample.txt -a sample.txt -- -q  -f run open-normal
+pintos -v -k -T 60 --qemu  --filesys-size=2 -p tests/userprog/open-null -a open-null -p ../../tests/userprog/sample.txt -a sample.txt -- -q  -f run open-null
+# pintos -v -k -T 60 --qemu  --filesys-size=2 -p tests/userprog/open-normal -a open-normal -p ../../tests/userprog/sample.txt -a sample.txt -- -q  -f run open-normal
