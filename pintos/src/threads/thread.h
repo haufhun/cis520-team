@@ -105,8 +105,9 @@ struct thread
      bool ex;
      struct thread* parent;
 
-     /* TO exit properly*/
-     int exit_status;
+     /* To track the number of open files! */
+     int fd_count;
+     struct list fd_list;
   };
 
 /* If false (default), use round-robin scheduler.
