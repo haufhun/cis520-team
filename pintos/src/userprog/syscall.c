@@ -90,11 +90,12 @@ static void copy_in(int * argv, uint32_t *stp, size_t size)
 	if (is_user_vaddr(stp))
 	{
 	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
-	  if (page_ptr)
-      {
-        memcpy(argv, stp, size);
-        return;
-      }
+	  
+    if (page_ptr)
+    {
+      memcpy(argv, stp, size);
+      return;
+    }
 	}
 
   sys_exit_handle(-1);
