@@ -1,23 +1,27 @@
 #include "userprog/syscall.h"
 #include <stdio.h>
+#include <string.h>
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "threads/init.h"
+#include "threads/vaddr.h"
+#include "threads/synch.h"
 
 static void syscall_handler (struct intr_frame *);
 
-static void copy_in(int * argv, uint32_t * stp, size_t size);
-
 static void sys_hault_handle(void);
-static void sys_exit_handle(int status);
-static int sys_open_handle (const char *ufile);
-static void sys_write_handle(int fd, char * buffer, unsigned size);
+static void sys_exit_handle(int );
+static int sys_open_handle (const char *);
+static void sys_write_handle(int, char *, unsigned);
+static void sys_close_handle(int);
 
-static int sys_default (int arg0); // remove this later - after all sys calls implemented
+static void copy_in(int *, uint32_t *, size_t);
+static char * copy_in_string(char *);
 
-// we may need a lock here.. for the file system
-// struct lock fs_lock;
+static int sys_default (int); // remove this later - after all sys calls implemented
+
+static struct lock fs_lock;
 
 
 /* This Table and struct are taken from Project2Session.pdf
@@ -31,6 +35,14 @@ struct syscall
 {
   size_t arg_cnt; /* Number of arguments. */
   syscall_function *func; /* Implementation. */
+};
+
+/* A file descriptor */
+struct file_descriptor 
+{
+  int count;
+  struct file *fp;
+  struct list_elem elem;
 };
 
 /* Table of system calls. */
@@ -48,13 +60,13 @@ static const struct syscall syscall_table[] =
   {3, (syscall_function *) sys_write_handle},      // write
   {1, (syscall_function *) sys_default},           // seek        
   {1, (syscall_function *) sys_default},           // tell        
-  {1, (syscall_function *) sys_default}            // close        
+  {1, (syscall_function *) sys_close_handle}       // close        
 };
 
 void syscall_init (void) 
 {
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
-  // lock_init(&fs_lock);
+  lock_init(&fs_lock);
 }
 
 /* This method is taken from the Proj2Session.pdf 
@@ -84,13 +96,6 @@ static void syscall_handler (struct intr_frame *f)
   f->eax = sc->func (args[0], args[1], args[2]);
 }
 
-static void copy_in(int * argv, uint32_t *stp, size_t size)
-{
-  // need to add addressing checking here!!!!
-  // look at pagedir.c and vaddr.h
-  memcpy(argv, stp, size);
-}
-
 static void sys_hault_handle(void)
 {
   shutdown_power_off();
@@ -101,7 +106,6 @@ static void sys_exit_handle(int status)
   struct thread *t = thread_current();
 
   t->parent->ex = true;
-  t->exit_status = status;
 
   printf("%s: exit(%d)\n", t->name, status);
   thread_exit ();
@@ -109,27 +113,130 @@ static void sys_exit_handle(int status)
 
 static int sys_open_handle (const char *ufile)
 {
-// char *kfile = copy_in_string (ufile);
-//
-//  struct file_descriptor *fd;
+  char *kfile;
+  struct file_descriptor *fd;
+  struct thread * t;
 
-// int handle = -1;
-// fd = malloc (sizeof *fd);
-// if (fd != NULL)
-// {
-// lock_acquire (&fs_lock);
-// fd->file = filesys_open (kfile);
-// if (fd->file != NULL)
-// // ... add to list of fd's associated with thread
+  // kfile = copy_in_string (ufile);
+
+  if(!ufile || !is_user_vaddr(ufile))
+    return -1;
+
+  // int handle = -1; //idk what this is used for : HUNTER
+  fd = malloc (sizeof *fd);
+
+  if (fd)
+  {
+    lock_acquire (&fs_lock);
+    fd->fp = filesys_open (ufile);
+    lock_release (&fs_lock);
+
+    if (fd->fp)
+    {
+      t = thread_current();
+      fd->count = t->fd_count++;
+      list_push_back (&t->fd_list, &fd->elem);
+      return fd->count;
+    }
+  }
+  
   return -1;
 }
 
 static void sys_write_handle(int fd, char * buffer, unsigned size)
 {
   int i;
+  
+  
+  if(fd < STDOUT_FILENO)
+    return;
 
-  for (i = 0; i < size; i++)
-    printf("%c", buffer[i]);
+  if(fd == STDOUT_FILENO)
+  {
+    for (i = 0; i < size; i++)
+      printf("%c", buffer[i]);
+
+    return;
+  }
+  
+  if(fd > STDOUT_FILENO)
+  {
+    ASSERT (false);
+    // need to implement writing to a file here
+  }
+}
+
+static void sys_close_handle(int fd_num)
+{
+	struct list_elem *e;
+	struct file_descriptor *fd;
+  struct thread *t = thread_current ();
+  bool didIt = false;
+
+  if(fd_num <= STDOUT_FILENO)
+    return;
+
+  lock_acquire(&fs_lock);
+  
+  for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
+  {
+    fd = list_entry (e, struct file_descriptor, elem);
+
+    if(fd->count == fd_num)
+    {
+      file_close(fd->fp);
+      list_remove(e);
+      didIt = true;
+    }
+  }
+
+  if(didIt)
+    free(fd);
+
+  lock_release(&fs_lock);    
+}
+
+static void copy_in(int * argv, uint32_t *stp, size_t size)
+{
+	if (is_user_vaddr(stp))
+	{
+	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
+	  
+    if (page_ptr)
+    {
+      memcpy(argv, stp, size);
+      return;
+    }
+	}
+
+  sys_exit_handle(-1);
+  return 0;
+}
+
+static char * copy_in_string(char * string)
+{
+  char * newString;
+  size_t size;
+
+  if(!string)
+    return NULL;
+
+	if (is_user_vaddr(string))
+	{
+	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, string);
+	  
+    if (page_ptr)
+    {
+      size = strlen(string)+1;
+      newString = malloc(size);
+      strlcpy(newString, string, size);
+      
+      return newString;
+    }
+	}
+
+  sys_exit_handle(-1);
+  return NULL;
 }
 
 static int sys_default (int arg0) // remove this later - after all sys calls implemented
