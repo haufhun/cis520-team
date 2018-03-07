@@ -158,13 +158,20 @@ static int sys_open_handle (const char *ufile)
 static void sys_write_handle(int fd, char * buffer, unsigned size)
 {
   int i;
+  
+  
+  if(fd < STDOUT_FILENO)
+    return;
 
-  if(fd == 1)
+  if(fd == STDOUT_FILENO)
   {
     for (i = 0; i < size; i++)
       printf("%c", buffer[i]);
+
+    return;
   }
-  else
+  
+  if(fd > STDOUT_FILENO)
   {
     ASSERT (false);
     // need to implement writing to a file here
@@ -180,7 +187,7 @@ static void sys_close_handle(int fd_num)
 
   printf("FD # = %d\n", fd_num);
   
-  if(fd_num < 2)
+  if(fd_num <= STDOUT_FILENO)
     return;
 
   lock_acquire(&fs_lock);
