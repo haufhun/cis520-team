@@ -4,6 +4,7 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "threads/init.h"
+#include "threads/vaddr.h"
 
 static void syscall_handler (struct intr_frame *);
 
@@ -86,9 +87,18 @@ static void syscall_handler (struct intr_frame *f)
 
 static void copy_in(int * argv, uint32_t *stp, size_t size)
 {
-  // need to add addressing checking here!!!!
-  // look at pagedir.c and vaddr.h
-  memcpy(argv, stp, size);
+	if (is_user_vaddr(stp))
+	{
+	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
+	  if (page_ptr)
+      {
+        memcpy(argv, stp, size);
+        return;
+      }
+	}
+
+  sys_exit_handle(-1);
+  return 0;
 }
 
 static void sys_hault_handle(void)
