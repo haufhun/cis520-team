@@ -21,7 +21,7 @@ pass tests/userprog/open-normal
 pass tests/userprog/open-missing
 pass tests/userprog/open-boundary
 pass tests/userprog/open-empty
-FAIL tests/userprog/open-null
+pass tests/userprog/open-null
 FAIL tests/userprog/open-bad-ptr
 pass tests/userprog/open-twice
 pass tests/userprog/close-normal
@@ -39,7 +39,7 @@ FAIL tests/userprog/write-normal
 FAIL tests/userprog/write-bad-ptr
 FAIL tests/userprog/write-boundary
 FAIL tests/userprog/write-zero
-FAIL tests/userprog/write-stdin
+pass tests/userprog/write-stdin
 FAIL tests/userprog/write-bad-fd
 FAIL tests/userprog/exec-once
 FAIL tests/userprog/exec-arg
@@ -78,4 +78,4 @@ FAIL tests/filesys/base/sm-seq-random
 FAIL tests/filesys/base/syn-read
 FAIL tests/filesys/base/syn-remove
 FAIL tests/filesys/base/syn-write
-52 of 80 tests failed.
+50 of 80 tests failed.
