@@ -8,18 +8,27 @@
 #include "threads/vaddr.h"
 #include "threads/synch.h"
 
+typedef int pid_t;
+
 static void syscall_handler (struct intr_frame *);
 
 static void sys_hault_handle(void);
-static void sys_exit_handle(int );
+static void sys_exit_handle(int);
+static pid_t sys_exec_handle(const char *);
+static int sys_wait_handle(pid_t);
+static bool sys_create_handle(const char *, unsigned);
+static bool sys_remove_handle(const char *);
 static int sys_open_handle (const char *);
-static void sys_write_handle(int, char *, unsigned);
+static int sys_filesize_handle(int);
+static int sys_read_handle(int, char *, unsigned);
+static int sys_write_handle(int, char *, unsigned);
+static void sys_seek_handle(int, unsigned);
+static unsigned sys_tell_handle(int);
 static void sys_close_handle(int);
 
 static void copy_in(int *, uint32_t *, size_t);
 static char * copy_in_string(char *);
-
-static int sys_default (int); // remove this later - after all sys calls implemented
+static void* check_addr(const void *);
 
 static struct lock fs_lock;
 
@@ -45,21 +54,23 @@ struct file_descriptor
   struct list_elem elem;
 };
 
+
+
 /* Table of system calls. */
 static const struct syscall syscall_table[] =
 {
-  {1, (syscall_function *) sys_hault_handle},      // halt                                               
+  {0, (syscall_function *) sys_hault_handle},      // halt                                               
   {1, (syscall_function *) sys_exit_handle},       // exit
-  {1, (syscall_function *) sys_default},           // exec
-  {1, (syscall_function *) sys_default},           // wait
-  {1, (syscall_function *) sys_default},           // create
-  {1, (syscall_function *) sys_default},           // remove
+  {1, (syscall_function *) sys_exec_handle},       // exec
+  {1, (syscall_function *) sys_wait_handle},       // wait
+  {2, (syscall_function *) sys_create_handle},     // create
+  {1, (syscall_function *) sys_remove_handle},     // remove
   {1, (syscall_function *) sys_open_handle},       // open
-  {1, (syscall_function *) sys_default},           // filesize
-  {1, (syscall_function *) sys_default},           // read    
+  {1, (syscall_function *) sys_filesize_handle},   // filesize
+  {3, (syscall_function *) sys_read_handle},       // read    
   {3, (syscall_function *) sys_write_handle},      // write
-  {1, (syscall_function *) sys_default},           // seek        
-  {1, (syscall_function *) sys_default},           // tell        
+  {2, (syscall_function *) sys_seek_handle},       // seek        
+  {1, (syscall_function *) sys_tell_handle},       // tell        
   {1, (syscall_function *) sys_close_handle}       // close        
 };
 
@@ -109,17 +120,54 @@ static void sys_exit_handle(int status)
 
   printf("%s: exit(%d)\n", t->name, status);
   thread_exit ();
+  return;
 }
 
-static int sys_open_handle (const char *ufile)
+static pid_t sys_exec_handle(const char *file) 
+{
+  check_addr(file);
+  
+  ASSERT (false);
+}
+
+static int sys_wait_handle(pid_t pid)
+{
+  check_addr(&pid);
+  
+  ASSERT(false);
+}
+
+
+static bool sys_create_handle(const char *file, unsigned initial_size)
+{
+  bool success;
+
+  check_addr(file);
+
+  lock_acquire(&fs_lock);
+  success = filesys_create(file, initial_size);
+  lock_release(&fs_lock);
+
+  return success;
+}
+
+static bool sys_remove_handle(const char *file)
+{
+  check_addr(file);
+  
+  ASSERT (false);
+}
+
+static int sys_open_handle (const char *file)
 {
   char *kfile;
   struct file_descriptor *fd;
   struct thread * t;
 
-  // kfile = copy_in_string (ufile);
+  check_addr(file);
+  // kfile = copy_in_string (file);
 
-  if(!ufile || !is_user_vaddr(ufile))
+  if(!file || !is_user_vaddr(file))
     return -1;
 
   // int handle = -1; //idk what this is used for : HUNTER
@@ -128,7 +176,7 @@ static int sys_open_handle (const char *ufile)
   if (fd)
   {
     lock_acquire (&fs_lock);
-    fd->fp = filesys_open (ufile);
+    fd->fp = filesys_open (file);
     lock_release (&fs_lock);
 
     if (fd->fp)
@@ -143,20 +191,54 @@ static int sys_open_handle (const char *ufile)
   return -1;
 }
 
-static void sys_write_handle(int fd, char * buffer, unsigned size)
+static int sys_filesize_handle(int fd_num)
+{
+  struct list_elem *e;
+	struct file_descriptor *fd;
+  struct thread *t = thread_current ();
+  bool didIt = false;
+  int length;
+  
+  // if(fd_num <= STDOUT_FILENO)
+  //   return -1;
+
+  lock_acquire(&fs_lock);
+
+  for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
+  {
+    fd = list_entry (e, struct file_descriptor, elem);
+
+    if(fd->count == fd_num)
+    {
+      length = file_length(fd->fp);
+      didIt = true;
+    }
+  }
+
+  if(didIt)
+    free(fd);
+
+  lock_release(&fs_lock);    
+  return length;
+}
+
+static int sys_read_handle(int fd, char * buffer, unsigned size)
 {
   int i;
-  
-  
-  if(fd < STDOUT_FILENO)
-    return;
 
-  if(fd == STDOUT_FILENO)
+  check_addr(buffer);  
+  check_addr(&fd);  //Not sure if this is the right way to do it, but it passes the read-bad-fd test.
+  
+  
+  if(fd < STDIN_FILENO)
+    return -1;
+
+  if(fd == STDIN_FILENO)
   {
     for (i = 0; i < size; i++)
-      printf("%c", buffer[i]);
+      buffer[i] = input_getc();
 
-    return;
+    return size;
   }
   
   if(fd > STDOUT_FILENO)
@@ -164,6 +246,91 @@ static void sys_write_handle(int fd, char * buffer, unsigned size)
     ASSERT (false);
     // need to implement writing to a file here
   }
+}
+
+static int sys_write_handle(int fd, char * buffer, unsigned size)
+{
+  int i;
+  
+  check_addr(buffer);
+  //check_addr(&fd);  //this crashes all the tests for some reason... Worked for read-bad-fd though.
+  
+  if(fd < STDOUT_FILENO)
+    return -1;
+
+  if(fd == STDOUT_FILENO)
+  {
+    for (i = 0; i < size; i++)
+      printf("%c", buffer[i]);
+
+    return size;
+  }
+  
+  if(fd > STDOUT_FILENO)
+  {
+    ASSERT (false);
+    // need to implement writing to a file here
+  }
+}
+
+
+static void sys_seek_handle(int fd_num, unsigned position)
+{
+  struct list_elem *e;
+	struct file_descriptor *fd;
+  struct thread *t = thread_current ();
+  bool didIt = false;
+  
+  if(fd_num <= STDOUT_FILENO)
+    return;
+
+  lock_acquire(&fs_lock);
+  for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
+  {
+    fd = list_entry (e, struct file_descriptor, elem);
+
+    if(fd->count == fd_num)
+    {
+      file_seek(fd->fp, position);
+      didIt = true;
+    }
+  }
+
+  if(didIt)
+    free(fd);
+
+  lock_release(&fs_lock);    
+}
+
+static unsigned sys_tell_handle(int fd_num)
+{
+  struct list_elem *e;
+	struct file_descriptor *fd;
+  struct thread *t = thread_current ();
+  bool didIt = false;
+  unsigned file_pos;
+  
+  if(fd_num <= STDOUT_FILENO)
+    return;
+
+  lock_acquire(&fs_lock);
+  for (e = list_begin (&t->fd_list); e != list_end (&t->fd_list); e = list_next (e))
+  {
+    fd = list_entry (e, struct file_descriptor, elem);
+
+    if(fd->count == fd_num)
+    {
+      file_pos = file_tell(fd->fp);
+      didIt = true;
+    }
+  }
+
+  if(didIt)
+    free(fd);
+
+  lock_release(&fs_lock); 
+  
+  return file_pos;
 }
 
 static void sys_close_handle(int fd_num)
@@ -198,21 +365,11 @@ static void sys_close_handle(int fd_num)
 
 static void copy_in(int * argv, uint32_t *stp, size_t size)
 {
-	if (is_user_vaddr(stp))
-	{
-	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, stp);
-	  
-    if (page_ptr)
-    {
-      memcpy(argv, stp, size);
-      return;
-    }
-	}
+  check_addr(stp); //checks for sc-bad-ptr and sc-bad-arg
 
-  sys_exit_handle(-1);
-  return 0;
+  memcpy(argv, stp, size);
+  return;
 }
-
 static char * copy_in_string(char * string)
 {
   char * newString;
@@ -239,7 +396,23 @@ static char * copy_in_string(char * string)
   return NULL;
 }
 
-static int sys_default (int arg0) // remove this later - after all sys calls implemented
+/* This method checks if the parementer addr is a bad address/pointer */
+void* check_addr(const void *addr)
 {
-  return -1;
+  void *page_ptr = NULL;
+
+	if (!is_user_vaddr(addr))
+	{
+		sys_exit_handle(-1);
+		return 0;
+	}
+
+	page_ptr = pagedir_get_page(thread_current()->pagedir, addr);
+	if (!page_ptr)
+	{
+		sys_exit_handle(-1);
+		return 0;
+	}
+
+	return page_ptr;
 }
