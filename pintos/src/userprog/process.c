@@ -22,6 +22,7 @@
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
+extern struct list all_list; //waqee
 /* load() helpers. */
 
 static void push_arg(uint32_t **stack_ptr, uint32_t arg);
@@ -35,6 +36,8 @@ tid_t
 process_execute (const char *file_name) 
 {
   char *fn_copy;
+  char *f_name;
+
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
@@ -46,12 +49,22 @@ process_execute (const char *file_name)
 
   /*Parses the passed in cmd string to contain only the file name without args. */
   char *save_ptr;
-  file_name = strtok_r (file_name," ",&save_ptr);
+  f_name = malloc(strlen(file_name)+1);
+  // file_name = strtok_r (file_name," ",&save_ptr);
+  strlcpy (f_name, file_name, strlen(file_name)+1);
+  f_name = strtok_r (f_name," ",&save_ptr);
 
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
+  // tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
+   tid = thread_create (f_name, PRI_DEFAULT, start_process, fn_copy);
+   free(f_name);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
+   /*waqee*/
+  sema_down(&thread_current()->child_lock);
+  if(!thread_current()->success)
+    return -1;
+
   return tid;
 }
 
@@ -107,9 +120,17 @@ start_process (void *cmd_string)
   /* End implementation for argument passing */
 
   /* If load failed, quit. */
-  palloc_free_page (cmd_string);
-  if (!success) 
-    thread_exit ();
+  palloc_free_page (cmd_string); //waqee
+  if (!success) {
+    thread_current()->parent->success=false;
+    sema_up(&thread_current()->parent->child_lock);
+    thread_exit();
+  }
+  else
+  {
+    thread_current()->parent->success=true;
+    sema_up(&thread_current()->parent->child_lock);
+  }
 
   /* Start the user process by simulating a return from an
      interrupt, implemented by intr_exit (in
@@ -131,10 +152,41 @@ start_process (void *cmd_string)
    This function will be implemented in problem 2-2.  For now, it
    does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) 
+process_wait (tid_t child_tid) 
 {  
-  while(!thread_current()->ex) ;
-  return -1;
+  // while(!thread_current()->ex) ;
+  // return -1;
+  struct list_elem *e;
+
+  struct child *ch=NULL;
+  struct list_elem *e1=NULL;
+
+  for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc);
+           e = list_next (e))
+        {
+          struct child *f = list_entry (e, struct child, elem);
+          if(f->tid == child_tid)
+          {
+            ch = f;
+            e1 = e;
+          }
+        }
+
+
+  if(!ch || !e1)
+    return -1;
+
+  thread_current()->waitingon = ch->tid;
+    
+  if(!ch->used)
+    sema_down(&thread_current()->child_lock);
+  // else
+    // return -1;
+
+  int temp = ch->exit_error;
+  list_remove(e1);
+  
+  return temp;
 }
 
 /* Free the current process's resources. */
@@ -143,6 +195,17 @@ process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
+  // // waqee below
+   if(cur->exit_error==-100)
+      sys_exit_handle(-1);
+
+  int exit_code = cur->exit_error;
+  // printf("%s: exit(%d)\n",cur->name,exit_code);
+
+  acquire_fs_lock();
+  file_close(thread_current()->self);
+  close_all_files(&thread_current()->fd_list);
+  release_fs_lock();
 
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
@@ -260,7 +323,8 @@ load (const char *file_name, void (**eip) (void), void **esp)
   off_t file_ofs;
   bool success = false;
   int i;
-
+  
+  acquire_fs_lock();
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
@@ -268,7 +332,17 @@ load (const char *file_name, void (**eip) (void), void **esp)
   process_activate ();
 
   /* Open executable file. */
-  file = filesys_open (file_name);
+  // file = filesys_open (file_name);
+  char * fn_cp = malloc (strlen(file_name)+1);
+  strlcpy(fn_cp, file_name, strlen(file_name)+1);
+  
+  char * save_ptr;
+  fn_cp = strtok_r(fn_cp," ",&save_ptr);
+
+  file = filesys_open (fn_cp);
+
+  free(fn_cp);
+
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
@@ -355,10 +429,14 @@ load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
+  file_deny_write(file);
+  thread_current()->self = file;
+
 
  done:
   /* We arrive here whether the load is successful or not. */
-  file_close (file);
+  // file_close (file);
+  release_fs_lock();  
   return success;
 }
 

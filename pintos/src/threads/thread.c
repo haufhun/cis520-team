@@ -26,7 +26,7 @@ static struct list ready_list;
 
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
-static struct list all_list;
+struct list all_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -36,6 +36,9 @@ static struct thread *initial_thread;
 
 /* Lock used by allocate_tid(). */
 static struct lock tid_lock;
+
+/* From Waqee*/
+struct lock fs_lock;
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
@@ -92,6 +95,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
+  lock_init(&fs_lock);
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -182,6 +186,13 @@ thread_create (const char *name, int priority,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
+
+  /*From waqee*/
+  struct child* c = malloc(sizeof(*c));
+  c->tid = tid;
+  c->exit_error = t->exit_error;
+  c->used = false;
+  list_push_back (&running_thread()->child_proc, &c->elem);
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -465,12 +476,21 @@ init_thread (struct thread *t, const char *name, int priority)
   t->magic = THREAD_MAGIC;
 
   // for waiting
-  t->ex = false;
+  t->ex = false; //delete after wait implementation.
+  list_init (&t->child_proc);
   t->parent = running_thread();
   
   // for fd
   t->fd_count = 2;
+
   list_init (&t->fd_list);
+  lock_init(&t->child_lock);
+  cond_init(&t->child_cond);
+  t->exit_error = -100;
+  sema_init(&t->child_lock,0);
+  t->waitingon=0;
+  t->self=NULL;
+
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
@@ -590,3 +610,13 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+void acquire_fs_lock()
+{
+  lock_acquire(&fs_lock);
+}
+
+void release_fs_lock()
+{
+  lock_release(&fs_lock);
+}

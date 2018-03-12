@@ -31,7 +31,8 @@ static char * copy_in_string(char *);
 static void * check_addr(const void *);
 static struct file_descriptor * search_list(int, bool);
 
-static struct lock fs_lock;
+// static struct lock fs_lock;
+void close_all_files(struct list* files);
 
 
 /* Prototype for a syscall function. */
@@ -75,7 +76,7 @@ static const struct syscall syscall_table[] =
 void syscall_init (void) 
 {
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
-  lock_init(&fs_lock);
+  // lock_init(&fs_lock);
 }
 
 /* This method is taken from the Proj2Session.pdf document. 
@@ -110,13 +111,36 @@ static void sys_hault_handle(void)
 
 void sys_exit_handle(int status)
 {
-  struct thread *t = thread_current();
+  struct list_elem *e;
 
-  t->parent->ex = true;
+      for (e = list_begin (&thread_current()->parent->child_proc); e != list_end (&thread_current()->parent->child_proc);
+           e = list_next (e))
+        {
+          struct child *f = list_entry (e, struct child, elem);
+          if(f->tid == thread_current()->tid)
+          {
+          	f->used = true;
+          	f->exit_error = status;
+          }
+        }
 
-  printf("%s: exit(%d)\n", t->name, status);
-  thread_exit ();
-  return;
+
+	thread_current()->exit_error = status;
+
+	if(thread_current()->parent->waitingon == thread_current()->tid)
+		sema_up(&thread_current()->parent->child_lock);
+
+  printf("%s: exit(%d)\n", thread_current()->name, status);
+	thread_exit();
+
+  /* Our original implementation.*/
+  // struct thread *t = thread_current();
+
+  // // t->parent->ex = true;
+  // t->parent->exit_error = true;
+
+  // thread_exit ();
+  // return;
 }
 
 static pid_t sys_exec_handle(const char *file) 
@@ -124,7 +148,7 @@ static pid_t sys_exec_handle(const char *file)
   check_addr(file);
   
 
-  lock_acquire(&fs_lock);
+    acquire_fs_lock();
 	char * fn_cp = malloc (strlen(file)+1);
   strlcpy(fn_cp, file, strlen(file)+1);
   
@@ -135,13 +159,13 @@ static pid_t sys_exec_handle(const char *file)
 
   if(f==NULL)
   {
-    lock_release(&fs_lock);
+     release_fs_lock();
     return -1;
   }
   else
   {
     file_close(f);
-    lock_release(&fs_lock);
+     release_fs_lock();
     return process_execute(file);
   }
 }
@@ -150,35 +174,35 @@ static int sys_wait_handle(pid_t pid)
 {
   check_addr(&pid);
 
-  // struct list_elem *e;
+  struct list_elem *e;
 
-  // struct child *ch=NULL;
-  // struct list_elem *e1=NULL;
+  struct child *ch=NULL;
+  struct list_elem *e1=NULL;
 
-  // for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc);
-  //          e = list_next (e))
-  //       {
-  //         struct child *f = list_entry (e, struct child, elem);
-  //         if(f->tid == pid)
-  //         {
-  //           ch = f;
-  //           e1 = e;
-  //         }
-  //       }
+  for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc);
+           e = list_next (e))
+        {
+          struct child *f = list_entry (e, struct child, elem);
+          if(f->tid == pid)
+          {
+            ch = f;
+            e1 = e;
+          }
+        }
 
 
-  // if(!ch || !e1)
-  //   return -1;
+  if(!ch || !e1)
+    return -1;
 
-  // thread_current()->waitingon = ch->tid;
+  thread_current()->waitingon = ch->tid;
     
-  // if(!ch->used)
-  //   sema_down(&thread_current()->child_lock);
+  if(!ch->used)
+    sema_down(&thread_current()->child_lock);
 
-  // int temp = ch->exit_error;
-  // list_remove(e1);
+  int temp = ch->exit_error;
+  list_remove(e1);
   
-  // return temp;
+  return temp;
 }
 
 
@@ -188,9 +212,9 @@ static bool sys_create_handle(const char *file, unsigned initial_size)
 
   check_addr(file);
 
-  lock_acquire(&fs_lock);
+    acquire_fs_lock();
   success = filesys_create(file, initial_size);
-  lock_release(&fs_lock);
+   release_fs_lock();
 
   return success;
 }
@@ -201,9 +225,9 @@ static bool sys_remove_handle(const char *file)
 
   check_addr(file);
 
-  lock_acquire(&fs_lock);
+    acquire_fs_lock();
   success = filesys_remove(file);
-  lock_release(&fs_lock);
+   release_fs_lock();
   
   return success;
 }
@@ -221,13 +245,13 @@ static int sys_open_handle (const char *file)
     return -1;
 
   // int handle = -1; //idk what this is used for : HUNTER
-  fd = malloc (sizeof *fd);
+  fd = malloc (sizeof (*fd));
 
   if (fd)
   {
-    lock_acquire (&fs_lock);
+    acquire_fs_lock();
     fd->fp = filesys_open (file);
-    lock_release (&fs_lock);
+    release_fs_lock();
 
     if (fd->fp)
     {
@@ -250,14 +274,14 @@ static int sys_filesize_handle(int fd_num)
   return;
 
 
-  lock_acquire(&fs_lock);
+   acquire_fs_lock();
   fd = search_list(fd_num, false);
   if(fd)
   {
     length = file_length(fd->fp);
     free(fd);
   }
-  lock_release(&fs_lock);
+   release_fs_lock();
   
   return length;
 }
@@ -283,14 +307,14 @@ static int sys_read_handle(int fd_num, char * buffer, unsigned size)
   
   if(fd_num > STDOUT_FILENO)
   {
-    lock_acquire(&fs_lock);
+     acquire_fs_lock();
     fd = search_list(fd_num, false);
     if(fd)
     {
       bytes_read = file_read(fd->fp, buffer, size);
       free(fd);
     }
-    lock_release(&fs_lock);
+     release_fs_lock();
   }
   return bytes_read;
 }
@@ -316,14 +340,14 @@ static int sys_write_handle(int fd_num, char * buffer, unsigned size)
   
   if(fd_num > STDOUT_FILENO)
   {
-    lock_acquire(&fs_lock);
+     acquire_fs_lock();
     fd = search_list(fd_num, false);
     if(fd)
     {
       bytes_read = file_write(fd->fp, buffer, size);
       free(fd);
     }
-    lock_release(&fs_lock);
+     release_fs_lock();
   }
   return bytes_read;  
 }
@@ -336,7 +360,7 @@ static void sys_seek_handle(int fd_num, unsigned position)
     return;
 
 
-  lock_acquire(&fs_lock);
+   acquire_fs_lock();
   fd = search_list(fd_num, false);
   if(fd)
   {
@@ -344,7 +368,7 @@ static void sys_seek_handle(int fd_num, unsigned position)
     free(fd);
   }
 
-  lock_release(&fs_lock);
+   release_fs_lock();
   
   return;
 }
@@ -358,14 +382,14 @@ static unsigned sys_tell_handle(int fd_num)
     return;
 
 
-  lock_acquire(&fs_lock);
+   acquire_fs_lock();
   fd = search_list(fd_num, false);
   if(fd)
   {
     file_pos = file_tell(fd->fp);
     free(fd);
   }
-  lock_release(&fs_lock);
+   release_fs_lock();
   
   return file_pos;
 }
@@ -378,14 +402,14 @@ static void sys_close_handle(int fd_num)
     return;
 
 
-  lock_acquire(&fs_lock);
+  acquire_fs_lock();
   fd = search_list(fd_num, true);
   if(fd)
   {
     file_close(fd->fp);
     free(fd);
   }
-  lock_release(&fs_lock);
+   release_fs_lock();
   
   return;
 }
@@ -464,4 +488,25 @@ static struct file_descriptor* search_list(int fd_num, bool remove_list_elem)
     }
   }
   return NULL;
+}
+
+void close_all_files(struct list* files)
+{
+
+	struct list_elem *e;
+
+	while(!list_empty(files))
+	{
+		e = list_pop_front(files);
+
+		struct file_descriptor *f = list_entry (e, struct file_descriptor, elem);
+          
+	      	file_close(f->fp);
+	      	list_remove(e);
+	      	free(f);
+
+
+	}
+
+      
 }

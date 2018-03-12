@@ -4,6 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include <threads/synch.h>
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -23,6 +24,7 @@ typedef int tid_t;
 #define PRI_MIN 0                       /* Lowest priority. */
 #define PRI_DEFAULT 31                  /* Default priority. */
 #define PRI_MAX 63                      /* Highest priority. */
+
 
 /* A kernel thread or user process.
 
@@ -80,6 +82,7 @@ typedef int tid_t;
    only because they are mutually exclusive: only a thread in the
    ready state is on the run queue, whereas only a thread in the
    blocked state is on a semaphore wait list. */
+   
 struct thread
   {
     /* Owned by thread.c. */
@@ -102,12 +105,30 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
 
     /* Parent/child processes */
-     bool ex;
-     struct thread* parent;
+    bool success;
+    bool ex; //take this out maybe after fully implementing wait.
+    struct list child_proc; /* From Waqee */
+    struct thread* parent;
+    struct file *self; // might not need yet. /* From Waqee */
 
-     /* To track the number of open files! */
-     int fd_count;
-     struct list fd_list;
+    int exit_error;
+
+    struct lock child_lock; // might not need yet. /* From Waqee */
+    struct condition child_cond; // might not need yet. /* From Waqee */
+    int waitingon; // might not need yet. /* From Waqee */
+
+    /* To track the number of open files! */
+    int fd_count;
+    struct list fd_list;
+  };
+
+/* From Waqee */
+  struct child 
+  {
+      int tid;
+      struct list_elem elem;
+      int exit_error;
+      bool used;
   };
 
 /* If false (default), use round-robin scheduler.
@@ -145,5 +166,8 @@ int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+void acquire_fs_lock();
+void release_fs_lock();
+
 
 #endif /* threads/thread.h */
