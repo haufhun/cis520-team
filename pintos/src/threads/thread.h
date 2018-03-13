@@ -4,6 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include "synch.h"
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -102,8 +103,9 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
 
     /* Parent/child processes */
-     bool ex;
      struct thread* parent;
+     struct semaphore child_wait_sema;
+     int child_exit_status;
 
      /* To track the number of open files! */
      int fd_count;

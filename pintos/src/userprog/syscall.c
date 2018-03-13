@@ -112,7 +112,8 @@ void sys_exit_handle(int status)
 {
   struct thread *t = thread_current();
 
-  t->parent->ex = true;
+  t->parent->child_exit_status = status;
+  sema_up(&t->parent->child_wait_sema);
 
   printf("%s: exit(%d)\n", t->name, status);
   thread_exit ();
@@ -122,6 +123,8 @@ void sys_exit_handle(int status)
 static pid_t sys_exec_handle(const char *file) 
 {
   check_addr(file);
+
+  // printf("In exec - %s\n", thread_current()->name);
   
 
   lock_acquire(&fs_lock);
@@ -148,7 +151,12 @@ static pid_t sys_exec_handle(const char *file)
 
 static int sys_wait_handle(pid_t pid)
 {
-  check_addr(&pid);
+  struct thread *t = thread_current();
+  // printf("%s's parent is %s\n", t->name, t->parent->name);
+
+  sema_down(&t->child_wait_sema);  
+
+  return t->child_exit_status;
 
   // struct list_elem *e;
 

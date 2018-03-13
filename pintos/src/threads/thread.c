@@ -465,8 +465,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->magic = THREAD_MAGIC;
 
   // for waiting
-  t->ex = false;
   t->parent = running_thread();
+  sema_init (&t->child_wait_sema, 0);
   
   // for fd
   t->fd_count = 2;

@@ -17,6 +17,7 @@
 #include "threads/palloc.h"
 #include "threads/thread.h"
 #include "threads/vaddr.h"
+#include "threads/synch.h"
 
 #define NEW_USR_PAGE 0x08048000 - PGSIZE
 
@@ -133,8 +134,9 @@ start_process (void *cmd_string)
 int
 process_wait (tid_t child_tid UNUSED) 
 {  
-  while(!thread_current()->ex) ;
-  return -1;
+  // printf("In process wait. %s\n", thread_current()->name);
+  sema_down(&thread_current()->child_wait_sema);
+  return thread_current()->child_exit_status;
 }
 
 /* Free the current process's resources. */
