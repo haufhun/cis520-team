@@ -398,7 +398,10 @@ static void sys_close_handle(int fd_num)
 
 static void copy_in(int * argv, uint32_t *stp, size_t size)
 {
-  check_addr(stp); //checks for sc-bad-ptr and sc-bad-arg
+  int i;
+  
+  for(i = 0; i < size; i++)
+    check_addr(stp+i); //checks for sc-bad-ptr and sc-bad-arg
 
   memcpy(argv, stp, size);
   return;

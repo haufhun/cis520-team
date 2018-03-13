@@ -7,7 +7,7 @@ pass tests/userprog/sc-bad-sp
 pass tests/userprog/sc-bad-arg
 pass tests/userprog/sc-boundary
 pass tests/userprog/sc-boundary-2
-FAIL tests/userprog/sc-boundary-3
+pass tests/userprog/sc-boundary-3
 pass tests/userprog/halt
 pass tests/userprog/exit
 pass tests/userprog/create-normal
@@ -44,7 +44,7 @@ pass tests/userprog/write-bad-fd
 pass tests/userprog/exec-once
 pass tests/userprog/exec-arg
 pass tests/userprog/exec-bound
-FAIL tests/userprog/exec-bound-2
+pass tests/userprog/exec-bound-2
 FAIL tests/userprog/exec-bound-3
 pass tests/userprog/exec-multiple
 pass tests/userprog/exec-missing
@@ -78,4 +78,4 @@ FAIL tests/filesys/base/sm-seq-random
 FAIL tests/filesys/base/syn-read
 FAIL tests/filesys/base/syn-remove
 FAIL tests/filesys/base/syn-write
-22 of 80 tests failed.
+20 of 80 tests failed.
