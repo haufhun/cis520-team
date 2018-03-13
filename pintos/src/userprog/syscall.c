@@ -15,7 +15,7 @@ static void syscall_handler (struct intr_frame *);
 static void sys_hault_handle(void);
 void sys_exit_handle(int);
 static pid_t sys_exec_handle(const char *);
-static int sys_wait_handle(pid_t);
+int sys_wait_handle(pid_t);
 static bool sys_create_handle(const char *, unsigned);
 static bool sys_remove_handle(const char *);
 static int sys_open_handle (const char *);
@@ -110,14 +110,26 @@ static void sys_hault_handle(void)
 
 void sys_exit_handle(int status)
 {
-  struct thread *t = thread_current();
+  struct list_elem *e;
 
-  t->parent->child_exit_status = status;
-  sema_up(&t->parent->child_wait_sema);
+  for (e = list_begin (&thread_current()->parent->child_proc); e != list_end (&thread_current()->parent->child_proc); e = list_next (e))
+  {
+    struct child *f = list_entry (e, struct child, elem);
+    if(f->tid == thread_current()->tid)
+    {
+      f->used = true;
+      f->exit_status= status;
+    }
+  }
 
-  printf("%s: exit(%d)\n", t->name, status);
-  thread_exit ();
-  return;
+
+	thread_current()->exit_status = status;
+
+	if(thread_current()->parent->wait_child_pid == thread_current()->tid)
+		sema_up(&thread_current()->parent->child_wait_sema);
+
+  printf("%s: exit(%d)\n", thread_current()->name, status);
+	thread_exit();
 }
 
 static pid_t sys_exec_handle(const char *file) 
@@ -149,44 +161,36 @@ static pid_t sys_exec_handle(const char *file)
   }
 }
 
-static int sys_wait_handle(pid_t pid)
+int sys_wait_handle(pid_t pid)
 {
-  struct thread *t = thread_current();
-  // printf("%s's parent is %s\n", t->name, t->parent->name);
+    struct list_elem *e;
 
-  sema_down(&t->child_wait_sema);  
+  struct child *ch=NULL;
+  struct list_elem *e1=NULL;
 
-  return t->child_exit_status;
-
-  // struct list_elem *e;
-
-  // struct child *ch=NULL;
-  // struct list_elem *e1=NULL;
-
-  // for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc);
-  //          e = list_next (e))
-  //       {
-  //         struct child *f = list_entry (e, struct child, elem);
-  //         if(f->tid == pid)
-  //         {
-  //           ch = f;
-  //           e1 = e;
-  //         }
-  //       }
+  for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc); e = list_next (e))
+  {
+    struct child *f = list_entry (e, struct child, elem);
+    if(f->tid == pid)
+    {
+      ch = f;
+      e1 = e;
+    }
+  }
 
 
-  // if(!ch || !e1)
-  //   return -1;
+  if(!ch || !e1)
+    return -1;
 
-  // thread_current()->waitingon = ch->tid;
+  thread_current()->wait_child_pid = ch->tid;
     
-  // if(!ch->used)
-  //   sema_down(&thread_current()->child_lock);
+  if(!ch->used)
+    sema_down(&thread_current()->child_wait_sema);
 
-  // int temp = ch->exit_error;
-  // list_remove(e1);
+  int temp = ch->exit_status;
+  list_remove(e1);
   
-  // return temp;
+  return temp;
 }
 
 

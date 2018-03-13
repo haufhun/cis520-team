@@ -183,6 +183,13 @@ thread_create (const char *name, int priority,
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
 
+  struct child* c = malloc(sizeof(*c));
+  c->tid = tid;
+  c->exit_status = t->exit_status;
+  c->used = false;
+  list_push_back (&running_thread()->child_proc, &c->elem);
+
+
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
   kf->eip = NULL;
@@ -471,6 +478,7 @@ init_thread (struct thread *t, const char *name, int priority)
   // for fd
   t->fd_count = 2;
   list_init (&t->fd_list);
+  list_init (&t->child_proc);
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);

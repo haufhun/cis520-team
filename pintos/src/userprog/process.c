@@ -132,11 +132,9 @@ start_process (void *cmd_string)
    This function will be implemented in problem 2-2.  For now, it
    does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) 
+process_wait (tid_t child_tid) 
 {  
-  // printf("In process wait. %s\n", thread_current()->name);
-  sema_down(&thread_current()->child_wait_sema);
-  return thread_current()->child_exit_status;
+ return sys_wait_handle(child_tid);
 }
 
 /* Free the current process's resources. */

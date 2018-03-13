@@ -105,13 +105,20 @@ struct thread
     /* Parent/child processes */
      struct thread* parent;
      struct semaphore child_wait_sema;
-     int child_exit_status;
-
+     int exit_status;
+     struct list child_proc;
+     int wait_child_pid;
      /* To track the number of open files! */
      int fd_count;
      struct list fd_list;
   };
-
+  struct child 
+  {
+    int tid;
+    struct list_elem elem;
+    int exit_status;
+    bool used;
+  };
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
    Controlled by kernel command-line option "-o mlfqs". */
