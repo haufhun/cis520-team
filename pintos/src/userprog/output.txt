@@ -42,7 +42,7 @@ pass tests/userprog/write-zero
 pass tests/userprog/write-stdin
 pass tests/userprog/write-bad-fd
 pass tests/userprog/exec-once
-FAIL tests/userprog/exec-arg
+pass tests/userprog/exec-arg
 pass tests/userprog/exec-bound
 FAIL tests/userprog/exec-bound-2
 FAIL tests/userprog/exec-bound-3
@@ -78,4 +78,4 @@ FAIL tests/filesys/base/sm-seq-random
 FAIL tests/filesys/base/syn-read
 FAIL tests/filesys/base/syn-remove
 FAIL tests/filesys/base/syn-write
-23 of 80 tests failed.
+22 of 80 tests failed.

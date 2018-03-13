@@ -33,26 +33,32 @@ static bool install_page (void *upage, void *kpage, bool writable);
    before process_execute() returns.  Returns the new process's
    thread id, or TID_ERROR if the thread cannot be created. */
 tid_t
-process_execute (const char *file_name) 
+process_execute (const char *cmd_string) 
 {
-  char *fn_copy;
+  char *cmd_copy, *fn_copy, *save_ptr;
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
-  fn_copy = palloc_get_page (0);
-  if (fn_copy == NULL)
+  cmd_copy = palloc_get_page (0);
+
+  if (cmd_copy == NULL)
     return TID_ERROR;
-  strlcpy (fn_copy, file_name, PGSIZE);
-
+  
+  strlcpy (cmd_copy, cmd_string, PGSIZE);
+  
   /*Parses the passed in cmd string to contain only the file name without args. */
-  char *save_ptr;
-  file_name = strtok_r (file_name," ",&save_ptr);
+  fn_copy = malloc(strlen(cmd_string)+1); // allocate to propery memory (either kernel or user)
+  strlcpy(fn_copy, cmd_string, strlen(cmd_string)+1);
+  fn_copy = strtok_r (fn_copy," ",&save_ptr);
 
-  /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
+  /* Create a new thread to execute CMD_COPY. */
+  tid = thread_create (fn_copy, PRI_DEFAULT, start_process, cmd_copy);
+  free(fn_copy);
+
   if (tid == TID_ERROR)
-    palloc_free_page (fn_copy); 
+    palloc_free_page (cmd_copy); 
+    
   return tid;
 }
 

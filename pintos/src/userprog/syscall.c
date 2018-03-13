@@ -281,9 +281,6 @@ static int sys_read_handle(int fd_num, char * buffer, unsigned size)
 
   check_addr(buffer);    
   
-  if(fd_num < STDIN_FILENO)
-    return -1;
-
   if(fd_num == STDIN_FILENO)
   {
     int i;
@@ -314,9 +311,6 @@ static int sys_write_handle(int fd_num, char * buffer, unsigned size)
   
   check_addr(buffer);
   
-  if(fd_num < STDOUT_FILENO)
-    return -1;
-
   if(fd_num == STDOUT_FILENO)
   {
     int i;
