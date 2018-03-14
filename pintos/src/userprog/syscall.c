@@ -27,7 +27,6 @@ static unsigned sys_tell_handle(int);
 static void sys_close_handle(int);
 
 static void copy_in(int *, uint32_t *, size_t);
-static char * copy_in_string(char *);
 static void * check_addr(const void *);
 static struct file_descriptor * search_list(int, bool);
 void close_all_files(struct list*);
@@ -222,17 +221,14 @@ static bool sys_remove_handle(const char *file)
 
 static int sys_open_handle (const char *file)
 {
-  char *kfile;
   struct file_descriptor *fd;
   struct thread * t;
 
   check_addr(file);
-  // kfile = copy_in_string (file);
 
   if(!file || !is_user_vaddr(file))
     return -1;
 
-  // int handle = -1; //idk what this is used for : HUNTER
   fd = malloc (sizeof *fd);
 
   if (fd)
@@ -267,7 +263,6 @@ static int sys_filesize_handle(int fd_num)
   if(fd)
   {
     length = file_length(fd->fp);
-    // free(fd);
   }
   lock_release(&fs_lock);
   
@@ -297,7 +292,6 @@ static int sys_read_handle(int fd_num, char * buffer, unsigned size)
     if(fd)
     {
       bytes_read = file_read(fd->fp, buffer, size);
-      // free(fd);
     }
     lock_release(&fs_lock);
   }
@@ -327,7 +321,6 @@ static int sys_write_handle(int fd_num, char * buffer, unsigned size)
     if(fd)
     {
       bytes_read = file_write(fd->fp, buffer, size);
-      // free(fd);
     }
     lock_release(&fs_lock);
   }
@@ -347,7 +340,6 @@ static void sys_seek_handle(int fd_num, unsigned position)
   if(fd)
   {
     file_seek(fd->fp, position);
-    // free(fd);
   }
 
   lock_release(&fs_lock);
@@ -369,7 +361,6 @@ static unsigned sys_tell_handle(int fd_num)
   if(fd)
   {
     file_pos = file_tell(fd->fp);
-    // free(fd);
   }
   lock_release(&fs_lock);
   
@@ -405,31 +396,6 @@ static void copy_in(int * argv, uint32_t *stp, size_t size)
 
   memcpy(argv, stp, size);
   return;
-}
-static char * copy_in_string(char * string)
-{
-  char * newString;
-  size_t size;
-
-  if(!string)
-    return NULL;
-
-	if (is_user_vaddr(string))
-	{
-	  void *page_ptr = pagedir_get_page(thread_current()->pagedir, string);
-	  
-    if (page_ptr)
-    {
-      size = strlen(string)+1;
-      newString = malloc(size);
-      strlcpy(newString, string, size);
-      
-      return newString;
-    }
-	}
-
-  sys_exit_handle(-1);
-  return NULL;
 }
 
 /* This method checks if the parementer addr is a bad address/pointer */
