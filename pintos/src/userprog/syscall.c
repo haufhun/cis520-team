@@ -133,10 +133,12 @@ void sys_exit_handle(int status)
 
 static pid_t sys_exec_handle(const char *file) 
 {
-  check_addr(file);
-
-  // printf("In exec - %s\n", thread_current()->name);
-  
+  int i, size = sizeof(file);
+  for(i = 0; i < size; i++)
+  {
+    check_addr(file+i);
+    
+  }
 
   lock_acquire(&fs_lock);
 	char * fn_cp = malloc (strlen(file)+1);

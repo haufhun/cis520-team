@@ -45,7 +45,7 @@ pass tests/userprog/exec-once
 pass tests/userprog/exec-arg
 pass tests/userprog/exec-bound
 pass tests/userprog/exec-bound-2
-FAIL tests/userprog/exec-bound-3
+pass tests/userprog/exec-bound-3
 pass tests/userprog/exec-multiple
 pass tests/userprog/exec-missing
 pass tests/userprog/exec-bad-ptr
@@ -53,7 +53,7 @@ pass tests/userprog/wait-simple
 pass tests/userprog/wait-twice
 pass tests/userprog/wait-killed
 pass tests/userprog/wait-bad-pid
-pass tests/userprog/multi-recurse
+FAIL tests/userprog/multi-recurse
 pass tests/userprog/multi-child-fd
 pass tests/userprog/rox-simple
 pass tests/userprog/rox-child
