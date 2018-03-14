@@ -111,7 +111,7 @@ void sys_exit_handle(int status)
 {
   struct list_elem *e;
 
-  for (e = list_begin (&thread_current()->parent->child_proc); e != list_end (&thread_current()->parent->child_proc); e = list_next (e))
+  for (e = list_begin (&thread_current()->parent->child_list); e != list_end (&thread_current()->parent->child_list); e = list_next (e))
   {
     struct child *f = list_entry (e, struct child, elem);
     if(f->tid == thread_current()->tid)
@@ -133,12 +133,14 @@ void sys_exit_handle(int status)
 
 static pid_t sys_exec_handle(const char *file) 
 {
-  int i, size = sizeof(file);
-  for(i = 0; i < size; i++)
+  // check_addr(file);
+  char i;
+  size_t size = sizeof(file);
+  for(i = 0; i < size; i++) // If you change this to size thhan it fails recurse, and passes syn-read
   {
-    check_addr(file+i);
-    
+    check_addr(file+i);    
   }
+  
 
   lock_acquire(&fs_lock);
 	char * fn_cp = malloc (strlen(file)+1);
@@ -169,7 +171,7 @@ int sys_wait_handle(pid_t pid)
   struct child *ch=NULL;
   struct list_elem *e1=NULL;
 
-  for (e = list_begin (&thread_current()->child_proc); e != list_end (&thread_current()->child_proc); e = list_next (e))
+  for (e = list_begin (&thread_current()->child_list); e != list_end (&thread_current()->child_list); e = list_next (e))
   {
     struct child *f = list_entry (e, struct child, elem);
     if(f->tid == pid)

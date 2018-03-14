@@ -187,7 +187,7 @@ thread_create (const char *name, int priority,
   c->tid = tid;
   c->exit_status = t->exit_status;
   c->used = false;
-  list_push_back (&running_thread()->child_proc, &c->elem);
+  list_push_back (&running_thread()->child_list, &c->elem);
 
 
   /* Stack frame for kernel_thread(). */
@@ -478,7 +478,7 @@ init_thread (struct thread *t, const char *name, int priority)
   // for fd
   t->fd_count = 2;
   list_init (&t->fd_list);
-  list_init (&t->child_proc);
+  list_init (&t->child_list);
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);

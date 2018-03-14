@@ -106,7 +106,7 @@ struct thread
      struct thread* parent;
      struct semaphore child_wait_sema;
      int exit_status;
-     struct list child_proc;
+     struct list child_list;
      int wait_child_pid;
      /* To track the number of open files! */
      int fd_count;
