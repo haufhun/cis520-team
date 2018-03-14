@@ -111,6 +111,8 @@ struct thread
      /* To track the number of open files! */
      int fd_count;
      struct list fd_list;
+     struct file *self;
+
   };
   struct child 
   {

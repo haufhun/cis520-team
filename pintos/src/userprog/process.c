@@ -18,6 +18,7 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 #include "threads/synch.h"
+#include "userprog/syscall.h"
 
 #define NEW_USR_PAGE 0x08048000 - PGSIZE
 
@@ -150,6 +151,11 @@ process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
+  lock_acquire(&fs_lock);
+  file_close(thread_current()->self);
+  close_all_files(&thread_current()->fd_list);
+  lock_release(&fs_lock);
+
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
@@ -274,7 +280,15 @@ load (const char *file_name, void (**eip) (void), void **esp)
   process_activate ();
 
   /* Open executable file. */
-  file = filesys_open (file_name);
+   char * fn_cp = malloc (strlen(file_name)+1);
+  strlcpy(fn_cp, file_name, strlen(file_name)+1);
+  
+  char * save_ptr;
+  fn_cp = strtok_r(fn_cp," ",&save_ptr);
+
+  lock_acquire(&fs_lock);
+  file = filesys_open (fn_cp);
+
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
@@ -361,10 +375,15 @@ load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
+  file_deny_write(file);
+
+  thread_current()->self = file;
 
  done:
   /* We arrive here whether the load is successful or not. */
-  file_close (file);
+  // file_close (file);
+  lock_release(&fs_lock);
+  
   return success;
 }
 

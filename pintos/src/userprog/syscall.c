@@ -30,8 +30,8 @@ static void copy_in(int *, uint32_t *, size_t);
 static char * copy_in_string(char *);
 static void * check_addr(const void *);
 static struct file_descriptor * search_list(int, bool);
+void close_all_files(struct list*);
 
-static struct lock fs_lock;
 
 
 /* Prototype for a syscall function. */
@@ -267,7 +267,7 @@ static int sys_filesize_handle(int fd_num)
   if(fd)
   {
     length = file_length(fd->fp);
-    free(fd);
+    // free(fd);
   }
   lock_release(&fs_lock);
   
@@ -297,7 +297,7 @@ static int sys_read_handle(int fd_num, char * buffer, unsigned size)
     if(fd)
     {
       bytes_read = file_read(fd->fp, buffer, size);
-      free(fd);
+      // free(fd);
     }
     lock_release(&fs_lock);
   }
@@ -327,7 +327,7 @@ static int sys_write_handle(int fd_num, char * buffer, unsigned size)
     if(fd)
     {
       bytes_read = file_write(fd->fp, buffer, size);
-      free(fd);
+      // free(fd);
     }
     lock_release(&fs_lock);
   }
@@ -347,7 +347,7 @@ static void sys_seek_handle(int fd_num, unsigned position)
   if(fd)
   {
     file_seek(fd->fp, position);
-    free(fd);
+    // free(fd);
   }
 
   lock_release(&fs_lock);
@@ -369,7 +369,7 @@ static unsigned sys_tell_handle(int fd_num)
   if(fd)
   {
     file_pos = file_tell(fd->fp);
-    free(fd);
+    // free(fd);
   }
   lock_release(&fs_lock);
   
@@ -473,4 +473,21 @@ static struct file_descriptor* search_list(int fd_num, bool remove_list_elem)
     }
   }
   return NULL;
+}
+
+void close_all_files(struct list* files)
+{
+
+	struct list_elem *e;
+
+	while(!list_empty(files))
+	{
+		e = list_pop_front(files);
+
+		struct file_descriptor *fd = list_entry (e, struct file_descriptor, elem);
+          
+    file_close(fd->fp);
+    list_remove(e);
+    free(fd);
+	}     
 }
