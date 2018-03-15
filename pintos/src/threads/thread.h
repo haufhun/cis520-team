@@ -119,7 +119,7 @@ struct thread
     int tid;
     struct list_elem elem;
     int exit_status;
-    bool used;
+    bool has_exited;
   };
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.

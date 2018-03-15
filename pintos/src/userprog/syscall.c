@@ -116,7 +116,7 @@ void sys_exit_handle(int status)
     struct child *f = list_entry (e, struct child, elem);
     if(f->tid == thread_current()->tid)
     {
-      f->used = true;
+      f->has_exited = true;
       f->exit_status= status;
     }
   }
@@ -187,7 +187,7 @@ int sys_wait_handle(pid_t pid)
 
   thread_current()->wait_child_pid = ch->tid;
     
-  if(!ch->used)
+  if(!ch->has_exited)
     sema_down(&thread_current()->child_wait_sema);
 
   int temp = ch->exit_status;
