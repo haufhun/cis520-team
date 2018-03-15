@@ -1,5 +1,6 @@
 #include "userprog/syscall.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
@@ -110,17 +111,25 @@ static void sys_hault_handle(void)
 void sys_exit_handle(int status)
 {
   struct list_elem *e;
+  struct list * c_list;
+  struct child *f;
+  int i = 0;
 
-  for (e = list_begin (&thread_current()->parent->child_list); e != list_end (&thread_current()->parent->child_list); e = list_next (e))
+  // while (i < 100)
+  //   i++;
+
+  c_list = &thread_current()->parent->child_list;
+
+  for (e = list_begin (c_list); e != list_end (c_list); e = list_next (e))
   {
     struct child *f = list_entry (e, struct child, elem);
+
     if(f->tid == thread_current()->tid)
     {
       f->has_exited = true;
       f->exit_status= status;
     }
   }
-
 
 	thread_current()->exit_status = status;
 

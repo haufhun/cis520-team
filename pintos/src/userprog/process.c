@@ -59,7 +59,12 @@ process_execute (const char *cmd_string)
 
   if (tid == TID_ERROR)
     palloc_free_page (cmd_copy); 
-    
+  
+  sema_down(&thread_current()->child_wait_sema);
+
+  if(!thread_current()->load_success)
+    return -1;
+
   return tid;
 }
 
@@ -116,8 +121,17 @@ start_process (void *cmd_string)
 
   /* If load failed, quit. */
   palloc_free_page (cmd_string);
-  if (!success) 
+  if (!success)
+  {
+    thread_current()->parent->load_success=false;
+    sema_up(&thread_current()->parent->child_wait_sema);
     thread_exit ();
+  }
+   else
+  {
+    thread_current()->parent->load_success=true;
+    sema_up(&thread_current()->parent->child_wait_sema);
+  }
 
   /* Start the user process by simulating a return from an
      interrupt, implemented by intr_exit (in

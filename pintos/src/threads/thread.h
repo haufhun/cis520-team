@@ -101,7 +101,7 @@ struct thread
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
-
+    
     /* Parent/child processes */
      struct thread* parent;
      struct semaphore child_wait_sema;
@@ -112,6 +112,7 @@ struct thread
      int fd_count;
      struct list fd_list;
      struct file *self;
+     bool load_success;
 
   };
   struct child 
