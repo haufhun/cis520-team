@@ -164,6 +164,8 @@ process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
+  if(cur->exit_status==-100)
+      sys_exit_handle(-1);
 
   lock_acquire(&fs_lock);
   file_close(thread_current()->self);
@@ -287,6 +289,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
   bool success = false;
   int i;
 
+  lock_acquire(&fs_lock);
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
@@ -300,7 +303,6 @@ load (const char *file_name, void (**eip) (void), void **esp)
   char * save_ptr;
   fn_cp = strtok_r(fn_cp," ",&save_ptr);
 
-  lock_acquire(&fs_lock);
   file = filesys_open (fn_cp);
 
   if (file == NULL) 

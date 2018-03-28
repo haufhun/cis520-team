@@ -293,6 +293,10 @@ thread_exit (void)
   process_exit ();
 #endif
 
+ while(!list_empty(&thread_current()->child_list)){
+      struct file_descriptor *f = list_entry (list_pop_front(&thread_current()->child_list), struct child, elem);
+      free(f);
+    }
   /* Remove thread from all threads list, set our status to dying,
      and schedule another process.  That process will destroy us
      when it calls thread_schedule_tail(). */
@@ -473,6 +477,7 @@ init_thread (struct thread *t, const char *name, int priority)
 
   // for waiting
   t->parent = running_thread();
+  t->exit_status = -100;
   sema_init (&t->child_wait_sema, 0);
   
   // for fd

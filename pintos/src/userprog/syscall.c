@@ -8,6 +8,7 @@
 #include "threads/init.h"
 #include "threads/vaddr.h"
 #include "threads/synch.h"
+#include "list.h"
 
 typedef int pid_t;
 
@@ -115,8 +116,8 @@ void sys_exit_handle(int status)
   struct child *f;
   int i = 0;
 
-  // while (i < 100)
-  //   i++;
+  while (i < 100)
+    i++;
 
   c_list = &thread_current()->parent->child_list;
 
