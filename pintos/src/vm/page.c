@@ -10,7 +10,6 @@
 #include "threads/vaddr.h"
 
 /* Maximum size of process stack, in bytes. */
-/* Right now it is 1 megabyte. */
 #define STACK_MAX (1024 * 1024)
 
 /* Destroys a page, which must be in the current process's
@@ -51,13 +50,11 @@ page_for_addr (const void *address)
       if (e != NULL)
         return hash_entry (e, struct page, hash_elem);
 
-      /* -We need to determine if the program is attempting to access the stack.
-         -First, we ensure that the address is not beyond the bounds of the stack space (1 MB in this
-          case).
-         -As long as the user is attempting to acsess an address within 32 bytes (determined by the space
-          needed for a PUSHA command) of the stack pointers, we assume that the address is valid. In that
-          case, we should allocate one more stack page accordingly.
-      */
+      /* No page.  Expand stack? */
+      /* Determine if the program is attempting to access the stack by doing two checks.
+          Checks if the address is not beyond the bounds of the stack space and that the user 
+          is only attempting to access an address within 32 bytes of the stack pointers
+          If these two checks pass, then we allocate a stack page accordingly. */
       if ((p.addr > PHYS_BASE - STACK_MAX) && ((void *)thread_current()->user_esp - 32 < address))
       {
         return page_allocate (p.addr, false);
@@ -143,7 +140,7 @@ page_in (void *fault_addr)
 bool
 page_out (struct page *p)
 {
-  bool dirty;
+  bool is_Dirty;
   bool ok = false;
 
   ASSERT (p->frame != NULL);
@@ -154,42 +151,29 @@ page_out (struct page *p)
      dirty bit, to prevent a race with the process dirtying the
      page. */
 
-  /* add code here */
-  // Get page, mark not present.
+  /*Marks user virtual page UPAGE "not present" in page directory. */
   pagedir_clear_page(p->thread->pagedir, (void *) p->addr);
 
-  /* Has the frame been modified? */
-  dirty = pagedir_is_dirty (p->thread->pagedir, (const void *) p->addr);
-  // Check dirty bit. If so, write out to disk.
-
-  if(!dirty)
-  {
-    ok = true;
-  }
-
-  if(p->file == NULL)
+  /*If the file is null or the page is private swap it out.*/
+  if(!p->file || p->private)
   {
     ok = swap_out(p);
   }
   else
   {
-    if (dirty)
-    {
-      if(p->private)
-      {
-        ok = swap_out(p);
-      }
-      else
-      {
-        ok = file_write_at(p->file, (const void *) p->frame->base, p->file_bytes, p->file_offset);
-      }
-    }
+    /* Checks if the frame is dirty (has been modified).  */
+    /* if the page is dirty, then write it out to the disk */
+    if (pagedir_is_dirty (p->thread->pagedir, (const void *) p->addr))
+        /* Write frame contents to disk if necessary. */
+      ok = file_write_at(p->file, (const void *) p->frame->base, p->file_bytes, p->file_offset);
+
+    else //is not dirty
+      ok = true;
   }
 
   if(ok)
-  {
     p->frame = NULL;
-  }
+
   return ok;
 }
 
