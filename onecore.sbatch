@@ -7,6 +7,6 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --job-name=LCSTestOne
 #SBATCH --mail-type=ALL   # same as =BEGIN,FAIL,END
-#SBATCH --mail-user=haufhun@ksu.edu
+#SBATCH --mail-user=tjstock@ksu.edu
 
-# $HOME/cis520/lcs
+$HOME/cis520-team/LCS
