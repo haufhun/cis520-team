@@ -1,45 +1,48 @@
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineNum2 );
 void clearArray(char *array, int lengthArray);
-#define MAXCHAR 1000
+void ReadFileIntoArray();
+void DoLCS(int);
+
+#define NUM_THREADS 1
+#define ARRAY_SIZE 1000000
+char char_array[ARRAY_SIZE][2005];
+
+unsigned int count = 0;
+
 int main(void)
 {
-	char* filename = "../wiki_dump.txt";
-	char X[MAXCHAR];
-	char Y[MAXCHAR];
-	int lengthX, lengthY, count = 0;
-	FILE *fp;
-    
- 
-    fp = fopen(filename, "r");
-    if (fp == NULL){
-        printf("Could not open file %s",filename);
-        return 1;
+    omp_set_num_threads(NUM_THREADS);
+
+	ReadFileIntoArray();
+    #pragma omp parallel 
+	{
+        //DoLCS(omp_get_thread_num());
     }
-
-
-
-	fgets(X, MAXCHAR, fp);
-	
-    while (fgets(Y, MAXCHAR, fp) != NULL && count <10000)
-	{		
-		lengthX = strlen(X);
-	 	lengthY = strlen(Y);
-		
-	 	getLCS(X, Y, lengthX, lengthY, count, count+1);
-		// printf("\n%s\n", X);
-		strcpy(X,Y);
-		// printf("\n%s\n", X);
-		count++;
-	}
-	fclose(fp);
   	return 0;
 }
 
-
+void DoLCS(int myID)
+{
+    int lengthX, lengthY, i, startPos, endPos;
+    
+    #pragma omp private(myID,theChar,charLoc,local_char_count,startPos,endPos,i,j)
+    {
+        startPos = myID * (count / NUM_THREADS);
+		endPos = startPos + (count / NUM_THREADS);
+        char char2[endPos-startPos +1];
+        for(i = startPos; i < endPos; i++)
+        {
+           lengthX = strlen(char_array[i]);
+           lengthY = strlen(char_array[i+1]);
+           getLCS(char_array[i], char_array[i+1], lengthX, lengthY, i, i+1);
+        }
+    }
+}
 /* Returns the longest common substring of two strings.
 	EX. String1 = "333ABCD455"
 		String2 = "55652ABCD44456"
@@ -79,9 +82,35 @@ void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineN
 			}
 		}	
 	}
+    int lengthLCS = strlen(LCS)-1;
+    if (LCS[lengthLCS] == '\n' || LCS[lengthLCS] == '\r')
+        LCS[lengthLCS] = '\0';    
+        
     printf("%d-%d: %s\n",lineNum1,lineNum2, LCS);
 }
 
+void ReadFileIntoArray()
+{
+    char* filename = "../wiki_dump.txt";
+	
+	
+	FILE *fp;
+    
+ 
+    fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",filename);
+        return;
+    }
+	
+    while (fgets(char_array[count], ARRAY_SIZE, fp) != NULL)
+	{		
+		 count++;
+         
+	}    
+    printf("count: %d\n\n\n\n", count);
+	fclose(fp);
+}
 /* Clears the given array */
 void clearArray(char *array, int lengthArray)
 {
