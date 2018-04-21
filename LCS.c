@@ -5,12 +5,14 @@
 #include <limits.h>
 void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineNum2 );
 void clearArray(char *array, int lengthArray);
-void ReadFileIntoArray();
+void ReadFileIntoArray(void);
 void DoLCS(int);
+void PrintArray(void);
 
-#define NUM_THREADS 1
+#define NUM_THREADS 4
 #define ARRAY_SIZE 1000000
 char char_array[ARRAY_SIZE][2005];
+char char_array2[ARRAY_SIZE][2005];
 
 unsigned int count = 0;
 
@@ -21,9 +23,20 @@ int main(void)
 	ReadFileIntoArray();
     #pragma omp parallel 
 	{
-        //DoLCS(omp_get_thread_num());
+        DoLCS(omp_get_thread_num());
     }
+    
+    PrintArray();
+
   	return 0;
+}
+void PrintArray()
+{
+    int i;
+    for(i = 0; i < count; i ++)
+    {
+         printf("%d-%d: %s\n",i,i+1, char_array2[i]);
+    }
 }
 
 void DoLCS(int myID)
@@ -34,7 +47,7 @@ void DoLCS(int myID)
     {
         startPos = myID * (count / NUM_THREADS);
 		endPos = startPos + (count / NUM_THREADS);
-        char char2[endPos-startPos +1];
+        
         for(i = startPos; i < endPos; i++)
         {
            lengthX = strlen(char_array[i]);
@@ -85,8 +98,8 @@ void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineN
     int lengthLCS = strlen(LCS)-1;
     if (LCS[lengthLCS] == '\n' || LCS[lengthLCS] == '\r')
         LCS[lengthLCS] = '\0';    
-        
-    printf("%d-%d: %s\n",lineNum1,lineNum2, LCS);
+    
+    strcpy(char_array2[lineNum1], LCS);
 }
 
 void ReadFileIntoArray()
