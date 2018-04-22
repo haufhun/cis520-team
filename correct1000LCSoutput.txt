@@ -1,0 +1,999 @@
+0-1: </title><text>\'\'\'aa
+1-2: <page> <title>aa
+2-3: <page> <title>aa
+3-4: <page> <title>a
+4-5: <page> <title>ab
+5-6: <page> <title>abc_
+6-7: <page> <title>abc_
+7-8: roadcasting corporation]]
+8-9:  [[australian broadcasting corporation]]
+9-10: lian broadcasting corporation]] 
+10-11: </title><text>{{infobox 
+11-12: <page> <title>ab
+12-13: </title><text>\'\'\'ab
+13-14: </title><text>\'\'\'a
+14-15: <page> <title>ac
+15-16: <page> <title>acc
+16-17: {{disambig}}</text> </page>	
+17-18: }}</text> </page>	
+18-19: \n\n{{disambiguation}}</text> </page>	
+19-20: }}</text> </page>	
+20-21: <page> <title>ac
+21-22: <page> <title>ac_
+22-23: <page> <title>ac_
+23-24: </text> </page>	
+24-25: <page> <title>ad
+25-26:  may refer to:\n\n
+26-27: <page> <title>ad
+27-28: <page> <title>ad
+28-29: <page> <title>a
+29-30: {{disambig}}</text> </page>	
+30-31: <page> <title>afc
+31-32: <page> <title>af
+32-33: <page> <title>af
+33-34: <page> <title>a
+34-35: /title><text>{{infobox 
+35-36: <page> <title>a
+36-37: <page> <title>a
+37-38: <page> <title>aid
+38-39: <page> <title>ai
+39-40: <page> <title>ai
+40-41: <page> <title>a
+41-42: {{disambig}}</text> </page>	
+42-43: {{disambig}}</text> </page>	
+43-44: <page> <title>aj
+44-45: tub}}</text> </page>	
+45-46: <page> <title>ak
+46-47: <page> <title>a
+47-48: <page> <title>alar
+48-49: <page> <title>al
+49-50: <page> <title>alp
+50-51: <page> <title>a
+51-52: <page> <title>am
+52-53: <page> <title>am
+53-54: <page> <title>am
+54-55: <page> <title>am
+55-56: <page> <title>am
+56-57: </title><text>{{unreferenced
+57-58: lass=\"wikitable\"
+58-59: <page> <title>an
+59-60: <page> <title>a
+60-61: <page> <title>a
+61-62: <page> <title>ap
+62-63: <page> <title>ap
+63-64: <page> <title>ap
+64-65: <page> <title>ap
+65-66: external links==\n*
+66-67: <page> <title>ap
+67-68: </title><text>{{
+68-69: <page> <title>ar
+69-70: <page> <title>ar
+70-71: <page> <title>a
+71-72: ==\n{{reflist}}\n\n==
+72-73: <page> <title>asa_
+73-74: <page> <title>as
+74-75: <page> <title>as
+75-76: <page> <title>as
+76-77: <page> <title>as
+77-78: <page> <title>as
+78-79: <page> <title>as
+79-80: american society for 
+80-81: <page> <title>as
+81-82:  is a [[france|french]] [[association football]] 
+82-83: <page> <title>a
+83-84: <page> <title>at
+84-85: <page> <title>at
+85-86: <page> <title>at
+86-87: <page> <title>at
+87-88: <page> <title>a
+88-89: .<ref>{{cite web|
+89-90: <page> <title>a
+90-91: <page> <title>a
+91-92: way station]], united kingdom
+92-93: }}</text> </page>	
+93-94: </title><text>{{
+94-95: <page> <title>a_bar
+95-96: <page> <title>a_b
+96-97: <page> <title>a_be
+97-98: <page> <title>a_be
+98-99: 2}}\n{{infobox album
+99-100:  name        = a big
+100-101: </title><text>{{infobox 
+101-102: /title><text>{{infobox 
+102-103: <page> <title>a_b
+103-104: <page> <title>a_
+104-105: | <!-- see wikipedia:wikiproject_
+105-106: <page> <title>a_ch
+106-107: <page> <title>a_ch
+107-108: \n{{infobox album <!-- see wikipedia:wikiproject_albums -->\n| name        = a chorus of 
+108-109: <page> <title>a_c
+109-110: nited states]]\n| language       = [[english language|english]]\n| 
+110-111: [[english language|english]]\n
+111-112: the [[university of 
+112-113: /title><text>{{infobox 
+113-114: ><text>{{infobox book\n| name          = a con
+114-115: </title><text>{{infobox book\n
+115-116: }}\n\n\'\'\'\'\'a cr
+116-117: !-- see wikipedia:wikiproject_albums -->\n
+117-118: <page> <title>a_da
+118-119: <page> <title>a_d
+119-120: <page> <title>a_de
+120-121: web|url=http://www.
+121-122: .<ref>{{cite web|url=http://www.
+122-123: <page> <title>a_di
+123-124: <page> <title>a_d
+124-125: <page> <title>a_dr
+125-126: <page> <title>a_dr
+126-127: /title><text>{{infobox 
+127-128: <page> <title>a_
+128-129: .\n\n==plot==\nthe film 
+129-130: .jpg\n| caption        = 
+130-131: infobox film\n| name
+131-132: <page> <title>a_foreign_
+132-133: <page> <title>a_f
+133-134: <page> <title>a_
+134-135: <!-- see wikipedia:wikiproject_
+135-136: <page> <title>a_g
+136-137: <page> <title>a_g
+137-138: <page> <title>a_
+138-139: <page> <title>a_ha
+139-140: <page> <title>a_hat
+140-141: <page> <title>a_h
+141-142: <page> <title>a_h
+142-143: <page> <title>a_
+143-144: wikipedia:wikiproject
+144-145: <page> <title>a_k
+145-146: <page> <title>a_
+146-147: <page> <title>a_l
+147-148: <page> <title>a_little_
+148-149: <page> <title>a_little_
+149-150: <page> <title>a_l
+150-151: </title><text>{{infobox 
+151-152: summary==\n\nthe 
+152-153: <page> <title>a_mi
+153-154: </title><text>{{infobox 
+154-155: </title><text>{{infobox album <!-- see wikipedia:wikiproject_albums -->\n| name     
+155-156: <page> <title>a_new_
+156-157: </title><text>\'\'\'\'\'a 
+157-158: <page> <title>a_pa
+158-159: <page> <title>a_p
+159-160: edia:wikiproject_albums -->\n
+160-161: </title><text>{{infobox 
+161-162: </title><text>{{infobox 
+162-163: -stub}}</text> </page>	
+163-164: <page> <title>a_p
+164-165: <page> <title>a_
+165-166: <page> <title>a_ra
+166-167: = [[english language|english]]\n
+167-168: <page> <title>a_r
+168-169: <page> <title>a_r
+169-170: ferences==\n{{reflist}}\n\n
+170-171: <page> <title>a_ro
+171-172: <page> <title>a_
+172-173: /title><text>{{infobox 
+173-174: /title><text>{{infobox book | <!-- see wikipedia:wikiproject_novels or wikipedia:wikiproject_books -->\n| name         
+174-175: !-- see wikipedia:wikiproject_
+175-176: <!-- see wikipedia:wikiproject_
+176-177: <page> <title>a_st
+177-178: <page> <title>a_st
+178-179: <page> <title>a_s
+179-180: english language|english]]
+180-181: <page> <title>a_ta
+181-182: <page> <title>a_t
+182-183: /title><text>{{infobox 
+183-184: /title><text>{{infobox 
+184-185: }}\n\n\'\'\'\'\'a 
+185-186: <page> <title>a_v
+186-187: /title><text>{{infobox 
+187-188: <page> <title>a_wh
+188-189: <page> <title>a_wh
+189-190: <page> <title>a_w
+190-191: <page> <title>a_wo
+191-192: <page> <title>a_world_
+192-193: <page> <title>a_world_
+193-194: <page> <title>a_
+194-195: <page> <title>a
+195-196: <page> <title>aa
+196-197: <page> <title>aachen_
+197-198: <page> <title>aa
+198-199: <ref>{{cite web|url=http://
+199-200: <page> <title>aakash
+200-201: </title><text>{{infobox film\n|
+201-202: <page> <title>aa
+202-203: <page> <title>aalborg_
+203-204: <page> <title>aalborg_
+204-205: <page> <title>aal
+205-206: <page> <title>aal
+206-207: <page> <title>aal
+207-208: <page> <title>aal
+208-209: <page> <title>aa
+209-210: <page> <title>aa
+210-211: <page> <title>aan
+211-212: <page> <title>aa
+212-213: |date=september 201
+213-214: <page> <title>aar
+214-215: <page> <title>aaro
+215-216: </title><text>\'\'\'aaron 
+216-217: <page> <title>aaron_d
+217-218: <page> <title>aaron_d
+218-219: <page> <title>aaron_
+219-220: <page> <title>aaron_
+220-221: <page> <title>aaron_k
+221-222: </title><text>{{infobox 
+222-223: <page> <title>aaron_
+223-224: \n\n==references==\n{{reflist}}\n\n==external links==\n*
+224-225: <page> <title>aaron_
+225-226: </title><text>{{infobox p
+226-227: </title><text>{{infobox person\n|
+227-228: <page> <title>aaron_sha
+228-229: <page> <title>aaron_s
+229-230: <page> <title>aaron_s
+230-231: <page> <title>aaron_
+231-232: <page> <title>aaron_
+232-233: <page> <title>aaron_w
+233-234: <page> <title>aaron_w
+234-235: }}\n{{defaultsort:
+235-236: <page> <title>aa
+236-237: <page> <title>aas
+237-238: <page> <title>aa
+238-239: </title><text>{{infobox film
+239-240: <page> <title>a
+240-241: {{geodis}}\n\n{{short pages monitor}}<!-- this long comment was added to the page to prevent it from being listed on special:shortpages. it and the accompanying monitoring template were generated via template:long comment. please do not remove the monitor template without removing the comment as well.--></text> </page>	
+241-242: <page> <title>ab_
+242-243: settlement_type        = village\n|pushpin_map            =iran\n|mapsize                =150px\n|coordinates_region     = ir\n|subdivision_type       = [[list of countries|country]]\n|subdivision_name = {{flag|iran}}\n|subdivision_type1 =[[provinces of iran|province]]\n|subdivision_name1 =[[k
+243-244: b}}</text> </page>	
+244-245: year=2011 |work=carabidae of the world |accessdate=
+245-246: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+246-247: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+247-248:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+248-249: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by straneo in 19
+249-250: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+250-251: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+251-252: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+252-253:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+253-254: a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+254-255:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by 
+255-256:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by straneo in 19
+256-257:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by straneo in 19
+257-258:  is a species of [[ground beetle]] in the subfamily [[pterostichinae]].<ref name=\"carabidae\">{{cite web |url=http://carabidae.pro/carabidae/abacetus-dejean-1828-195.html |title=\'\'abacetus\'\' dejean, 1828 |year=2011 |work=carabidae of the world |accessdate=7 august 2013}}</ref> it was described by straneo in 19
+258-259: <page> <title>aba
+259-260: </title><text>\'\'\'aba
+260-261: <page> <title>abag
+261-262: <page> <title>aba
+262-263: <page> <title>aba
+263-264: <page> <title>aba
+264-265: <page> <title>aban
+265-266:  regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[he
+266-267: <page> <title>aba
+267-268: <page> <title>abar
+268-269: <page> <title>abare
+269-270: <page> <title>abar
+270-271: <page> <title>aba
+271-272: </title><text>{{infobox 
+272-273: <page> <title>abbe
+273-274: <page> <title>abbe
+274-275: <page> <title>abbey_c
+275-276: <page> <title>abbey_
+276-277: <page> <title>abbey_
+277-278: <page> <title>abbey_
+278-279: ferences==\n{{reflist}}\n\n==
+279-280: <page> <title>abbo
+280-281: <page> <title>abbot
+281-282: <page> <title>abbott
+282-283: <page> <title>ab
+283-284: <page> <title>ab
+284-285: <page> <title>abdalla
+285-286: <page> <title>abd
+286-287: <page> <title>abdel_
+287-288: <page> <title>abdel_
+288-289: <page> <title>abdel
+289-290: /title><text>{{infobox football biography\n| image = \n| name
+290-291: </title><text>{{infobox 
+291-292: <page> <title>abderrah
+292-293: <page> <title>abde
+293-294: </title><text>{{infobox officeholder\n|
+294-295: <page> <title>abdi
+295-296: .<ref>[http://www.
+296-297: <page> <title>abdo
+297-298: <page> <title>abdo
+298-299: </title><text>{{infobox 
+299-300: <page> <title>abd
+300-301: ==references==\n{{reflist}}\n\n
+301-302: <page> <title>abdul_ha
+302-303: <page> <title>abdul_
+303-304: date of birth     =\n| place of birth    =\n| date of death     =\n| place of death    =\n}}\n
+304-305: alternative names =\n| short description =
+305-306: persondata\n| name              = 
+306-307: <page> <title>abdul_
+307-308: <page> <title>abdul_sa
+308-309: data <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+309-310: sondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+310-311: ==\n{{reflist}}\n\n{{persondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+311-312: rsondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+312-313: sondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              =
+313-314: <page> <title>abdullah_m
+314-315: <page> <title>abdullah_
+315-316: <page> <title>abdullah_
+316-317: birth_date  = {{birth date and age|197
+317-318: <page> <title>abdu
+318-319: \n{{reflist}}\n\n{{persondata\n| name              = 
+319-320:  \n| nationality = 
+320-321: <page> <title>abe_
+321-322: <page> <title>abe
+322-323: <page> <title>abe
+323-324: <page> <title>abe
+324-325: <page> <title>abe
+325-326: <page> <title>abel
+326-327: <page> <title>abe
+327-328: </title><text>{{infobox 
+328-329: <page> <title>abe
+329-330: <page> <title>aber
+330-331: <page> <title>aberdeen_
+331-332: <page> <title>aberdeen_
+332-333: <page> <title>aberdeen_
+333-334: <page> <title>aber
+334-335: /title><text>{{infobox 
+335-336: <page> <title>aber
+336-337: <page> <title>aber
+337-338: <page> <title>ab
+338-339: /title><text>{{infobox 
+339-340: </title><text>{{infobox 
+340-341: <page> <title>abh
+341-342: <page> <title>abhi
+342-343: <page> <title>abhi
+343-344: living people]]\n
+344-345: | name              = 
+345-346: <page> <title>abie
+346-347: <page> <title>abie
+347-348: <page> <title>abi
+348-349: <page> <title>abi
+349-350: /title><text>{{infobox 
+350-351: >{{cite web|url=http://www.
+351-352: <page> <title>abingdon_
+352-353: </title><text>\'\'\'abi
+353-354: </title><text>\'\'\'abi
+354-355: <page> <title>ab
+355-356: /title><text>{{infobox 
+356-357: <page> <title>abl
+357-358: -stub}}</text> </page
+358-359: <page> <title>abner_
+359-360: <page> <title>abner_
+360-361: <page> <title>ab
+361-362: -stub}}</text> </page>	
+362-363: <page> <title>abo
+363-364: <page> <title>aboriginal_
+364-365: <page> <title>abor
+365-366: ext>{{pp-semi-vandalism|small=yes|expiry=29 november 2014}}\n\'\'\'abortion in 
+366-367: /title><text>{{pp-semi-vandalism|small=yes|expiry=29 november 2014}}\n\'\'\'abortion in 
+367-368: <page> <title>abortion_in_
+368-369: <page> <title>abo
+369-370: <page> <title>about_
+370-371: <page> <title>ab
+371-372: \n|settlement_type        = village\n|pushpin_map            =iran\n|mapsize                =150px\n|coordinates_region     = ir\n|subdivision_type       = [[list of countries|country]]\n|subdivision_name = {{flag|iran}}\n|subdivision_type1 =[[provinces of iran|province]]\n|subdivision_name1 =[[
+372-373: <page> <title>abr
+373-374: <page> <title>abraham_
+374-375: </title><text>\'\'\'abraham 
+375-376: persondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+376-377: <page> <title>abraham_
+377-378: </title><text>{{infobox 
+378-379: <page> <title>abraham_
+379-380: <page> <title>abraham_
+380-381: <page> <title>abraham_
+381-382: <page> <title>abraham_p
+382-383: infobox person\n| name = abraham 
+383-384: <page> <title>abraham_so
+384-385: ferences==\n{{reflist}}\n
+385-386: <page> <title>abraham_
+386-387: </title><text>{{infobox 
+387-388: <page> <title>abraham_
+388-389: <page> <title>abraham_
+389-390: </title><text>\'\'\'abraham 
+390-391: <page> <title>abraham_
+391-392: <page> <title>abraham_
+392-393: <page> <title>abraham_
+393-394: </title><text>{{unreferenced|date=
+394-395: <page> <title>abra
+395-396: <page> <title>abram
+396-397: <page> <title>abra
+397-398: .<ref>{{cite web|url=http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/geometroidea/geometridae/ennominae/abraxas/index.html |title=abraxas at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref> \n\n==references==\n{{reflist}}\n\n[[category:abraxini]]\n\n{{ennominae-stub}}</text> </page>	
+398-399: .<ref>{{cite web|url=http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/geometroidea/geometridae/ennominae/abraxas/index.html |title=abraxas at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref> 
+399-400: -stub}}</text> </page>	
+400-401: _map            =iran\n|mapsize                =150px\n|coordinates_region     = ir\n|subdivision_type       = [[list of countries|country]]\n|subdivision_name = {{flag|iran}}\n|subdivision_type1 =[[provinces of iran|province]]\n|subdivision_name1 =[[
+401-402: <page> <title>abr
+402-403: .1\n| status_ref = <ref
+403-404: <page> <title>ab
+404-405: </title><text>{{infobox 
+405-406: <page> <title>abs
+406-407: <page> <title>abs
+407-408: <page> <title>absolute_
+408-409: <page> <title>absolute_
+409-410: <page> <title>absolut
+410-411: infobox album <!-- see wikipedia:wikiproject_albums -->\n| name        = abso
+411-412: <page> <title>absor
+412-413: </title><text>\'\'\'abs
+413-414: <page> <title>abstract_
+414-415: <page> <title>abstract
+415-416: <page> <title>ab
+416-417: </title><text>\'\'\'
+417-418: <page> <title>abu_ba
+418-419: <page> <title>abu_
+419-420: <page> <title>abu_
+420-421: <page> <title>abu_
+421-422: <page> <title>abu_
+422-423: <page> <title>abu_
+423-424: <page> <title>abu
+424-425: <page> <title>abu
+425-426: .<ref>[http://www.
+426-427: <page> <title>abul
+427-428: <page> <title>abul
+428-429: <page> <title>abu
+429-430: <page> <title>abu
+430-431: <page> <title>abuse_
+431-432: <page> <title>ab
+432-433: <page> <title>abz
+433-434: <page> <title>a
+434-435: regnum = [[plant]]ae\n|unranked_divisio = [[angiosperms]]\n|unranked_classis = [[eudicots]]\n|unranked_ordo = [[rosids]]\n|ordo = [[fabales]]\n|familia = [[fabaceae]]\n|genus = \'\'[[acacia]]\'\'\n|species = \'\'\'\'\'a. 
+435-436: regnum = [[plant]]ae\n|unranked_divisio = [[angiosperms]]\n|unranked_classis = [[eudicots]]\n|unranked_ordo = [[rosids]]\n|ordo = [[fabales]]\n|familia = [[fabaceae]]\n|genus = \'\'[[acacia]]\'\'\n|species = \'\'\'\'\'
+436-437: regnum = [[plant]]ae\n|unranked_divisio = [[angiosperms]]\n|unranked_classis = [[eudicots]]\n|unranked_ordo = [[rosids]]\n|ordo = [[fabales]]\n|familia = [[fabaceae]]\n|genus = \'\'[[acacia]]\'\'\n|species = \'\'\'\'\'
+437-438: <page> <title>aca
+438-439: <page> <title>academi
+439-440: <page> <title>academic_grading_in_
+440-441: <page> <title>academ
+441-442: <page> <title>academy_
+442-443: <page> <title>academy_of_
+443-444: <page> <title>academy_of_
+444-445: <page> <title>acad
+445-446: <page> <title>acadia
+446-447: <page> <title>aca
+447-448: <page> <title>aca
+448-449: <page> <title>aca
+449-450: num = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+450-451: n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| 
+451-452: </title><text>{{italic title}}{{taxobox\n| name = \'\'acantho
+452-453: -stub}}</text> </page>	
+453-454: genus = \'\'\'\'\'acantho
+454-455: <text>{{italic title}}\n{{taxobox\n| name = \'\'acantho
+455-456: </title><text>{{italic title}}\n{{
+456-457: <text>{{italic title}}\n{{
+457-458: <page> <title>aca
+458-459: <page> <title>ac
+459-460: <page> <title>acca
+460-461: <page> <title>acc
+461-462: <page> <title>acce
+462-463: <page> <title>acce
+463-464: <page> <title>access_
+464-465: <page> <title>access_m
+465-466: <page> <title>access
+466-467: <page> <title>accessory_
+467-468: <page> <title>acc
+468-469: <page> <title>acc
+469-470: <page> <title>acco
+470-471: <page> <title>acco
+471-472: <page> <title>acc
+472-473: <page> <title>ac
+473-474: <page> <title>ace_
+474-475: awards               
+475-476: <page> <title>ace_
+476-477: <page> <title>ace
+477-478: fossil_range = {{fossil
+478-479: regnum = [[animal]]ia\n| phylum = [[
+479-480: <page> <title>ace
+480-481: _ref = {{chemboximage|correct|??}}\n| imagesize
+481-482: <page> <title>ac
+482-483: <page> <title>achaea
+483-484: <page> <title>acha
+484-485: <page> <title>acha
+485-486: <page> <title>acha
+486-487: <page> <title>acharya
+487-488: <page> <title>acha
+488-489: </title><text>{{italictitle}}\n{{taxobox\n| name = \'\'ach
+489-490: \n| regnum = [[animalia]]\n| phylum = [[chordata]]\n| classis = [[actinopterygii]]\n| ordo = [[cypriniformes]]\n| familia = [[cyprinidae]]\n| genus = \'\'[[acheilognathus]]\'\'\n| species = \'\'\'\'\'a. 
+490-491: <page> <title>ache
+491-492: <page> <title>ache
+492-493: -stub}}</text> </page>	
+493-494: <page> <title>ach
+494-495: <page> <title>achill
+495-496: <page> <title>achille_
+496-497: <page> <title>achille
+497-498: <page> <title>achilles_
+498-499: <page> <title>achilles_
+499-500: <page> <title>achi
+500-501: <page> <title>ach
+501-502: <page> <title>acho
+502-503: <page> <title>ach
+503-504: <page> <title>ac
+504-505: regnum = [[plant]]ae\n| unranked_divisio = [[angiosperm]]s\n| unranked_classis = [[monocot]]s\n| ordo = [[asparagales]]\n| familia = [[orchidaceae]]\n| subfamilia = [[epidendroideae]]\n| tribus = [[epidendreae]]\n| subtribus = [[pleurothallidinae]]\n|genus = \'\'[[acianthera]]\'\'\n| species = \'\'\'\'\'a. 
+505-506: <page> <title>aci
+506-507: </title><text>{{use dmy dates|date=july 2013}}\n{{infobox 
+507-508: <page> <title>aci
+508-509: unranked_divisio = [[angiosperm
+509-510: <page> <title>aci
+510-511: <page> <title>ac
+511-512: <ref>[http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/hesperioidea/hesperiidae/hesperiinae/acleros/index.html \'\'acleros\'\']
+512-513: <page> <title>ac
+513-514: <page> <title>ac
+514-515: <page> <title>acom
+515-516: <page> <title>aco
+516-517: <page> <title>acon
+517-518: <page> <title>aco
+518-519: <page> <title>aco
+519-520: /title><text>\'\'\'acos
+520-521: </title><text>\'\'\'aco
+521-522: <page> <title>acous
+522-523: <page> <title>acoustic_
+523-524: <page> <title>acoustic_
+524-525: <page> <title>acoustic_
+525-526: <page> <title>acoustic
+526-527: <page> <title>ac
+527-528: <page> <title>ac
+528-529: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[nymphalidae]]\n| 
+529-530:  regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[nymphalidae]]\n| tribus = [[acraeini]]\n| genus = \'\'[[acraea]]\'\'\n| species = \'\'\'\'\'a. 
+530-531: .<ref name=atbut>[http://atbutterflies.com/downloads/nymphalidae_acraeini.doc afrotropical butterflies: nymphalidae - tribe acraeini]</ref>
+531-532: <ref name=funet>[http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/papilionoidea/nymphalidae/heliconiinae/acraea/index.html \'\'acraea\'\'], site of markku savela</ref>\n| synonyms =\n*\'\'acraea 
+532-533: <ref name=funet>[http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/papilionoidea/nymphalidae/heliconiinae/acraea/index.html \'\'acraea\'\'], site of markku savela</ref>\n| synonyms =\n*\'\'acraea (actinote) 
+533-534: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[nymphalidae]]\n| 
+534-535: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[n
+535-536: <page> <title>acr
+536-537: <page> <title>acr
+537-538: <page> <title>acr
+538-539: <page> <title>acro
+539-540: <ref>{{cite web|url=http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/pyraloidea/pyralidae/phycitinae/acrobasis/index.html |title=\'&#39;acrobasis\'&#39; at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref>\n| synonyms = \n
+540-541: <ref>{{cite web|url=http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/pyraloidea/pyralidae/phycitinae/acrobasis/index.html |title=\'&#39;acrobasis\'&#39; at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref>\n| synonyms = \n*\'\'
+541-542: </title><text>{{taxobox\n| image = \n| image_width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pyralidae]]\n| genus = \'\'[[acrobasis]]\'\'\n| species = \'\'\'\'\'a. 
+542-543: </title><text>{{taxobox\n| image = \n| image_width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pyralidae]]\n| genus = \'\'[[acrobasis]]\'\'\n| species = \'\'\'\'\'a. 
+543-544: .funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/pyraloidea/pyralidae/phycitinae/acrobasis/index.html |title=\'&#39;acrobasis\'&#39; at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref>\n| synonyms = \n
+544-545: <ref>{{cite web|url=http://www.nic.funet.fi/pub/sci/bio/life/insecta/lepidoptera/ditrysia/pyraloidea/pyralidae/phycitinae/acrobasis/index.html |title=\'&#39;acrobasis\'&#39; at funet.fi |publisher=nic.funet.fi |date= |accessdate=2011-12-16}}</ref>\n| synonyms = \n
+545-546: </title><text>{{taxobox\n| image = \n| image_width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pyralidae]]\n| genus = \'\'[[acrobasis]]\'\'\n| species = \'\'\'\'\'a. 
+546-547: \n| species = \'\'\'\'\'a. 
+547-548: ae]]\n| genus = \'\'[[acroc
+548-549: <text>{{italic title}}\n{{taxobox\n| image = \n| image_width = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| class = [[insect]]a\n| ordo = [[lepidoptera]]\n| infraordo [[heteroneura]]\n| familia = [[gracillariidae]]\n| genus = \'\'[[acrocercops]]\'\'\n| species = \'\'\'\'\'a. a
+549-550: insect]]a\n| ordo = [[lepidoptera]]\n| infraordo [[heteroneura]]\n| familia = [[gracillariidae]]\n| genus = \'\'[[acrocercops]]\'\'\n| species = \'\'\'\'\'a. 
+550-551: _width = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| infraordo [[heteroneura]]\n| familia = [[gracillariidae]]\n| genus = \'\'[[acrocercops]]\'\'\n| species = \'\'\'\'\'a. 
+551-552: a</title><text>{{italic title}}\n{{taxobox\n| image = \n| image_width = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| infraordo [[heteroneura]]\n| familia = [[gracillariidae]]\n| genus = \'\'[[acrocercops]]\'\'\n| species = \'\'\'\'\'a. 
+552-553: /title><text>{{italic title}}\n{{taxobox\n| image = \n| image_width = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| infraordo [[heteroneura]]\n| familia = [[gracillariidae]]\n| genus = \'\'[[acrocercops]]\'\'\n| species = \'\'\'\'\'a. 
+553-554: n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| 
+554-555: <page> <title>acro
+555-556: <page> <title>acrod
+556-557: <page> <title>acro
+557-558: <page> <title>acro
+558-559: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+559-560: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+560-561: </title><text>{{taxobox\n| image = \n| image_width = 250px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[acrolophidae]]\n| genus = \'\'[[acrolophus]]\'\'\n| species = \'\'\'\'\'a. 
+561-562: </title><text>{{taxobox\n| image = \n| image_width = 250px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[acrolophidae]]\n| genus = \'\'[[acrolophus]]\'\'\n| species = \'\'\'\'\'a. 
+562-563: a</title><text>{{taxobox\n| image = \n| image_width = 250px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[acrolophidae]]\n| genus = \'\'[[acrolophus]]\'\'\n| species = \'\'\'\'\'a. 
+563-564: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+564-565: num = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+565-566: 00px\n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[noctuidae]]\n| genus = \'\'[[acronicta]]\'\'\n| species = \'\'\'\'\'a. 
+566-567: 0px\n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[noctuidae]]\n| genus = \'\'[[acronicta]]\'\'\n| species = \'\'\'\'\'a. 
+567-568: <page> <title>acro
+568-569: <page> <title>across
+569-570: regnum = [[animalia]]\n| phylum = [[chordata]]\n| classis = [[actinopterygii]]\n| ordo = [[cypriniformes]]\n| familia = [[cyprinidae]]\n| genus = \'\'
+570-571: ferences==\n{{reflist}}\n\n[[category:
+571-572: <page> <title>act_
+572-573: <page> <title>act
+573-574: <page> <title>acta_
+574-575: <page> <title>acta_
+575-576: <page> <title>acta_
+576-577: erences==\n{{reflist}}\n\n
+577-578: />\n\n==references==\n
+578-579: <page> <title>acti
+579-580: <page> <title>actin
+580-581: </title><text>{{orphan|date=
+581-582: -stub}}</text> </page>	
+582-583: <page> <title>acti
+583-584: <page> <title>action_
+584-585: <page> <title>action_
+585-586: <page> <title>acti
+586-587: <page> <title>activ
+587-588: </title><text>{{infobox software\n|
+588-589: <page> <title>active_
+589-590: <page> <title>active_
+590-591: <page> <title>active_
+591-592: <page> <title>active_
+592-593: <page> <title>activ
+593-594: <page> <title>act
+594-595: <page> <title>actu
+595-596: <page> <title>ac
+596-597: <page> <title>acu
+597-598: b}}</text> </page>	
+598-599: <page> <title>acu
+599-600: <page> <title>a
+600-601: <page> <title>ad_
+601-602: <page> <title>ad_
+602-603: <page> <title>ad_
+603-604: <page> <title>ad_
+604-605: <page> <title>ad
+605-606: <page> <title>adag
+606-607: <page> <title>ada
+607-608: <page> <title>adai
+608-609: <page> <title>ada
+609-610: er</title><text>\'\'\'adam 
+610-611: <page> <title>adam_b
+611-612: <page> <title>adam_b
+612-613: <page> <title>adam_
+613-614: <page> <title>adam_c
+614-615:  [[winger (ice hockey)|right wing]]\n| shoots = right\n| height_ft = 6\n| height_in = 
+615-616: </title><text>{{infobox 
+616-617: <page> <title>adam_
+617-618: >\n| name              
+618-619: <page> <title>adam_
+619-620: <page> <title>adam_
+620-621: <page> <title>adam_h
+621-622: <page> <title>adam_he
+622-623: <page> <title>adam_h
+623-624: <page> <title>adam_
+624-625: <page> <title>adam_
+625-626: <page> <title>adam_l
+626-627: <page> <title>adam_
+627-628: <page> <title>adam_mc
+628-629: /ref>\n\n==references==\n{{reflist}}\n\n
+629-630: \n\n==references==\n{{reflist}}\n\n
+630-631: persondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              = 
+631-632: <page> <title>adam_s
+632-633: ox person\n|name        
+633-634: <page> <title>adam_
+634-635: <page> <title>adam_
+635-636: <page> <title>adam_
+636-637: <page> <title>adam_
+637-638: <page> <title>adam_
+638-639: </title><text>{{infobox 
+639-640: <page> <title>adam
+640-641: <page> <title>adam
+641-642: <page> <title>adam
+642-643: <page> <title>adams_
+643-644: <page> <title>adams_
+644-645: <page> <title>adams
+645-646: <page> <title>ada
+646-647: <page> <title>adan
+647-648: org |date= |accessdate=2011-1
+648-649: <page> <title>adap
+649-650: <page> <title>adapt
+650-651: <page> <title>ada
+651-652: <page> <title>adare
+652-653: <page> <title>adar
+653-654: | name              
+654-655: alternative names =\n| short description = 
+655-656: <page> <title>add
+656-657: <page> <title>adde
+657-658: <page> <title>add
+658-659: <page> <title>addi
+659-660: <page> <title>add
+660-661: <page> <title>ad
+661-662: >\n| name              
+662-663: <page> <title>ade
+663-664: <page> <title>ade
+664-665: <page> <title>adek
+665-666: <page> <title>ade
+666-667: \n| place of birth    =\n| date of death     =\n| place of death    =\n}}\n{{defaultsort:
+667-668: <page> <title>adel
+668-669: <page> <title>adelaide_
+669-670: <page> <title>adelaide_
+670-671: <page> <title>adela
+671-672: <page> <title>adel
+672-673: obox person\n| name        = adel
+673-674: <page> <title>adele_
+674-675: <page> <title>adele
+675-676: <page> <title>adel
+676-677: <page> <title>adeli
+677-678: <page> <title>adeli
+678-679: </title><text>{{refimprove|date=
+679-680: <page> <title>adel
+680-681: \n| image_width = \n| image_caption = 
+681-682: </title><text>{{italic title}}\n{{taxobox\n|
+682-683: regnum = [[plant]]ae\n|
+683-684: <page> <title>adenop
+684-685: <page> <title>ade
+685-686: <page> <title>ade
+686-687: </title><text>{{infobox 
+687-688: <page> <title>ad
+688-689: = india\n| language 
+689-690: | name           
+690-691: births]]\n[[category:living people]]\n[[category:
+691-692: <page> <title>adi_
+692-693: <page> <title>adi
+693-694: ==references==\n{{reflist
+694-695: y\n| name             
+695-696: <page> <title>adidas_
+696-697: <page> <title>adi
+697-698: <page> <title>adi
+698-699: -stub}}</text> </page>	
+699-700: ==references==\n{{reflist}}\n\n
+700-701: <page> <title>ad
+701-702: <page> <title>adj
+702-703: <page> <title>adj
+703-704: <page> <title>adju
+704-705: <page> <title>ad
+705-706: </title><text>{{infobox 
+706-707: </title><text>{{infobox 
+707-708: <page> <title>adl
+708-709: <page> <title>adl
+709-710: species = \'\'\'\'\'a. 
+710-711: <page> <title>adm
+711-712: 02:<ref name=\"census\">results of the 2002 [[russian census (2002)|russian population census]]—[http://perepis2002.ru/ct/html/tom_01_03.htm territory, number of districts, inhabited localities, and rural administrations of the russian federation by federal subject]</ref></small>\n|-\n| \'\'\'# of rural localities\'\'\'<br
+712-713: <page> <title>administrat
+713-714: <page> <title>admi
+714-715: <page> <title>adm
+715-716: ==references==\n{{reflist}}\n\n
+716-717: -stub}}</text> </page>	
+717-718: <page> <title>ado
+718-719: <page> <title>ado
+719-720: <page> <title>adolf_
+720-721: <page> <title>adolf_
+721-722: <page> <title>adolf_
+722-723: /title><text>{{infobox 
+723-724: <page> <title>adolfo_
+724-725: <page> <title>adol
+725-726: </title><text>\'\'\'adolph 
+726-727: alternative names =\n| short description = 
+727-728: phe\n| alternative names =\n| short description = 
+728-729: rsondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name              =
+729-730: <page> <title>adolphe_
+730-731: <page> <title>adolph
+731-732: <page> <title>ado
+732-733: <page> <title>ado
+733-734: <page> <title>ad
+734-735: <page> <title>adrena
+735-736: <page> <title>adr
+736-737: [http://news.google.com/newspapers?id=
+737-738: rsondata <!-- metadata: see [[wikipedia:persondata]]. -->\n| name 
+738-739: = {{birth date and age|198
+739-740:  = {{birth date and age|19
+740-741: = {{birth date and age|1978|
+741-742: <page> <title>adrian_
+742-743: stralian national university]] in 19
+743-744: {{birth date and age|197
+744-745: <page> <title>adrian_
+745-746: = {{birth date and age|19
+746-747: </title><text>{{infobox 
+747-748: </title><text>{{infobox s
+748-749: >{{cite web|url=http://www.as
+749-750: <page> <title>adrien_
+750-751: <page> <title>adrien_
+751-752: <page> <title>adrien
+752-753: <page> <title>adr
+753-754: -stub}}</text> </page>	
+754-755: <page> <title>ads
+755-756: <page> <title>ad
+756-757: <page> <title>adu
+757-758: | name           
+758-759: <page> <title>advance
+759-760: <page> <title>advanced_
+760-761: <page> <title>advanced_compo
+761-762: <page> <title>advanced_
+762-763: <page> <title>advanced_
+763-764: <page> <title>advanced_
+764-765: <page> <title>advanced_
+765-766: <page> <title>advance
+766-767: <page> <title>advance
+767-768: <page> <title>adv
+768-769: <page> <title>adventure
+769-770: <page> <title>adventures_in_
+770-771: <page> <title>adventures_
+771-772: <page> <title>adventures_of_
+772-773: <page> <title>adve
+773-774: <page> <title>advers
+774-775: </title><text>\'\'\'\
+775-776: </title><text>\'\'\'
+776-777: <page> <title>advisory_council
+777-778: <page> <title>adv
+778-779: references==\n{{reflist}}\n\n==external links==\n*[http://www.
+779-780: n==external links==\n*
+780-781: <page> <title>ae
+781-782: <page> <title>ae
+782-783: <page> <title>aeg
+783-784: <text>{{italic title}}\n{{taxobox\n|
+784-785: -stub}}</text> </page>	
+785-786: <page> <title>ael
+786-787: <page> <title>aelf
+787-788: <page> <title>ael
+788-789: <page> <title>aeli
+789-790: <page> <title>ae
+790-791: <page> <title>ae
+791-792: <page> <title>aen
+792-793: <page> <title>ae
+793-794: <page> <title>aeolian_
+794-795: <page> <title>aeol
+795-796: -stub}}</text> </page>	
+796-797: </ref>\n\n==references==\n{{reflist}}\n\n[[category:
+797-798: \n| species = \'\'\'\'\'a. 
+798-799: = [[leptomedusae]]\n| subordo 
+799-800: <page> <title>ae
+800-801:  [[united states|american]] 
+801-802: <page> <title>aero
+802-803: <text>{{infobox airline\n| airline        
+803-804: nue          = \n| operating_income = \n| net_income       = \n| a
+804-805: <page> <title>aero
+805-806: <page> <title>aero
+806-807: <page> <title>aero
+807-808: <page> <title>aero
+808-809: <page> <title>aero
+809-810: <page> <title>aero
+810-811: imary user=\n | more users= <!--limited to three in total; separate using <br /> -->\n | produced= <!--years in production-->\n | number built=\n | program cost= <!--total program cost-->\n | unit cost= 
+811-812: <page> <title>aeros
+812-813: <page> <title>aeros
+813-814: <page> <title>aer
+814-815: <page> <title>aer
+815-816: <page> <title>aer
+816-817: s</title><text>{{
+817-818: ==references==\n{{reflist}}\n\n{{
+818-819: <page> <title>aesc
+819-820: <page> <title>aes
+820-821: <!-- see wikipedia:wikiproject
+821-822: <page> <title>ae
+822-823: \n| image_width = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| zoodivision = [[ditrysia]]\n| zoosectio = [[cossina]]\n| familia = [[tortricidae]]\n| 
+823-824: <page> <title>a
+824-825: <page> <title>afa
+825-826: /title><text>{{infobox 
+826-827: </title><text>{{infobox 
+827-828: <page> <title>aff
+828-829: <page> <title>affe
+829-830: <page> <title>aff
+830-831: <page> <title>affi
+831-832: <page> <title>af
+832-833: <page> <title>afghan
+833-834: </title><text>{{infobox 
+834-835: <page> <title>afghan
+835-836: </title><text>{{infobox 
+836-837: <page> <title>af
+837-838: <page> <title>af
+838-839: <page> <title>af
+839-840: -stub}}</text> </page>	
+840-841: }}\n{{italic title}}\n{{taxobox\n|
+841-842: <page> <title>afra
+842-843: <page> <title>afras
+843-844: num = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+844-845: <page> <title>afr
+845-846: <page> <title>africa_
+846-847: <page> <title>africa_
+847-848: <page> <title>africa_
+848-849: <page> <title>africa_
+849-850: <page> <title>africa
+850-851: <page> <title>african_f
+851-852: <page> <title>african_
+852-853: <page> <title>african_
+853-854: <page> <title>african_
+854-855: <page> <title>african_
+855-856: <page> <title>african_
+856-857: <page> <title>african_
+857-858: <page> <title>african
+858-859: <page> <title>afric
+859-860: <page> <title>afri
+860-861: \n| species = \'\'\'\'\'a. 
+861-862:  | status_system = iucn3.1\n| regnum = [[animalia]]\n| phylum = [[chordata]]\n| classis = [[amphibia]]\n| ordo = [[anura (frog)|anura]]\n| familia = [[hyperoliidae]]\n| genus = \'\'[[afrixalus]]\'\'\n| species = \'\'\'\'\'a. 
+862-863: -stub}}</text> </page>	
+863-864: -stub}}</text> </page>	
+864-865: regnum = [[animal]]ia\n| phylum = [[
+865-866: \n| image_caption =\n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[
+866-867: <page> <title>afro
+867-868: <page> <title>afro
+868-869: -stub}}</text> </page>	
+869-870: <page> <title>af
+870-871: <page> <title>afsh
+871-872: -stub}}</text> </page>	
+872-873: -stub}}</text> </page>	
+873-874: <page> <title>afta
+874-875: <page> <title>aftab_ahm
+875-876: <page> <title>aftab_
+876-877: <page> <title>aft
+877-878: /title><text>{{infobox 
+878-879: </title><text>{{infobox 
+879-880: <page> <title>after_
+880-881: <page> <title>after_
+881-882: <page> <title>after_
+882-883: <page> <title>after
+883-884: <page> <title>after
+884-885: <page> <title>after
+885-886: <page> <title>aft
+886-887: <page> <title>af
+887-888: | name              
+888-889: </title><text><!-- 
+889-890: e-stub}}</text> </page>	
+890-891: ub}}</text> </page>	
+891-892: references==\n{{reflist}}\n\n
+892-893: </title><text>{{infobox 
+893-894: <page> <title>aga
+894-895: <page> <title>agap
+895-896: </title><text>{{infobox 
+896-897: <page> <title>agar
+897-898: <text>{{taxobox\n| image = \n| image_width = 220px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropoda]]\n| classis = [[insecta]]\n| ordo = [[lepidoptera]]\n| familia = [[arctiidae]]\n| genus = \'\'[[agaraea]]\'\'\n| species = \'\'\'\'\'a. 
+898-899: -stub}}</text> </page>	
+899-900: <page> <title>agar
+900-901: <page> <title>aga
+901-902: <page> <title>aga
+902-903: <page> <title>agath
+903-904: <page> <title>agath
+904-905: <page> <title>agat
+905-906: <page> <title>aga
+906-907: <page> <title>aga
+907-908: \n\n==references==\n{{reflist}}\n\n
+908-909: _caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pterophoridae]]\n| 
+909-910: image = \n| image_size = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pterophoridae]]\n| subfamilia = \n| genus = \'\'[[agdistis (moth)|agdistis]]\'\'\n| species = \'\'\'\'\'a. 
+910-911: mage = \n| image_size = 200px\n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[pterophoridae]]\n| subfamilia = \n| genus = \'\'[[agdistis (moth)|agdistis]]\'\'\n| species = \'\'\'\'\'a. 
+911-912: <page> <title>ag
+912-913: <page> <title>age
+913-914: <page> <title>age
+914-915: <page> <title>agen
+915-916: <page> <title>agen
+916-917: </title><text>{{infobox 
+917-918: external links==\n* [http://www.
+918-919: </title><text>[[image:
+919-920: <page> <title>agg
+920-921: <page> <title>agg
+921-922: <page> <title>aggregate_
+922-923: <page> <title>aggregate_
+923-924: <page> <title>ag
+924-925: <page> <title>agh
+925-926: <page> <title>agh
+926-927: <page> <title>agh
+927-928: <page> <title>agh
+928-929: <page> <title>ag
+929-930: <page> <title>agi
+930-931: <page> <title>agi
+931-932: <page> <title>agil
+932-933: <page> <title>agi
+933-934: </title><text>\'\'\'agios 
+934-935: s</title><text>\'\'\'agi
+935-936: <page> <title>ag
+936-937: ||5 september 2011}}</ref><ref name=\"conoidea\">{{cite journal |author=p. bouchet, yu. i. kantor, a. sysoev & n. puillandre |year=2011 |title=a new operational classification of the conoidea (gastropoda) |journal=[[journal of molluscan studies]] |volume=77 |issue=3 |pages=273–308 |doi=10.1093/mollus/eyr017}}</ref>\n\n==description==\n{{empty section|date=april 2010}}\n\n==distribution==\nthis marine species occurs 
+937-938: \n| regnum = [[animal]]ia\n| phylum = [[
+938-939: num = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[
+939-940: <page> <title>ag
+940-941: <page> <title>agn
+941-942: | name              
+942-943: <page> <title>agne
+943-944: <page> <title>agnes_
+944-945: <page> <title>agnes_
+945-946: <page> <title>agnes
+946-947: <page> <title>agne
+947-948: <page> <title>agn
+948-949: <page> <title>agni
+949-950: <page> <title>agni
+950-951: <page> <title>agni
+951-952: <page> <title>agn
+952-953: >\n\n==references==\n{{reflist}}\n\n
+953-954: </title><text>{{infobox 
+954-955: <page> <title>agon
+955-956: -stub}}</text> </page>	
+956-957: image = \n| image_width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[oecophoridae]] <small>(disputed)</small>\n| tribus = \n| genus = \'\'[[agonopterix]]\'\'\n| species = \'\'\'\'\'a. 
+957-958: _width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[oecophoridae]] <small>(disputed)</small>\n| tribus = \n| genus = \'\'[[agonopterix]]\'\'\n| species = \'\'\'\'\'a. 
+958-959: jpg\n| image_width = \n| image_caption = \n| regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[oecophoridae]] <small>(disputed)</small>\n| tribus = \n| genus = \'\'[[agonopterix]]\'\'\n| species = \'\'\'\'\'a. 
+959-960: <page> <title>agon
+960-961: <page> <title>ago
+961-962: <page> <title>ago
+962-963: name               
+963-964: </title><text>{{infobox 
+964-965: <page> <title>agra
+965-966: <page> <title>agrarian_
+966-967: stub}}</text> </page>	
+967-968: regnum = [[animal]]ia\n| phylum = [[arthropod]]a\n| classis = [[insect]]a\n| ordo = [[lepidoptera]]\n| familia = [[
+968-969: <page> <title>agri
+969-970: <page> <title>agriculture_
+970-971: <page> <title>agriculture_in_
+971-972: <page> <title>agriculture_in_s
+972-973: <page> <title>agriculture_in_
+973-974: <page> <title>agri
+974-975: <page> <title>agri
+975-976: <page> <title>agr
+976-977: <page> <title>agro
+977-978: <page> <title>agr
+978-979: <page> <title>ag
+979-980: |display=inline,title
+980-981: -geo-stub}}</text> </page>	
+981-982: <page> <title>agua
+982-983: <page> <title>agu
+983-984: <page> <title>agui
+984-985:  notable people with the surname include:\n\n*
+985-986: <page> <title>agu
+986-987: <page> <title>agu
+987-988: <page> <title>agus_
+988-989: <page> <title>agus
+989-990: <page> <title>agu
+990-991: -stub}}</text> </page>	
+991-992: </title><text>{{infobox 
+992-993: <page> <title>aha
+993-994:  ({{lang-he|אהרן א�
+994-995: <page> <title>ah
+995-996: </title><text>\'\'\'ahi
+996-997: <page> <title>ahira
+997-998: <page> <title>ah
+998-999: <page> <title>ahl

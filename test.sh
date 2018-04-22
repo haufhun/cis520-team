@@ -1,5 +1,3 @@
 #!/bin/sh
-
-cd cis520
-gcc LCS.c -o LCS
+gcc -o LCS LCS.c -fopenmp
 ./LCS
