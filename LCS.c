@@ -3,34 +3,47 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+
 void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineNum2 );
 void clearArray(char *array, int lengthArray);
-void ReadFileIntoArray(int startPos, int endPos, char** local_array);
+char ** ReadFileIntoArray(int startPos, int endPos, char** local_array);
 void DoLCS(int);
 void PrintArray(void);
 void CountLines();
 
-#define NUM_THREADS 4
+#define NUM_THREADS 1
 #define ARRAY_SIZE 1000000
-//char char_array[ARRAY_SIZE][2005];
-char char_array2[ARRAY_SIZE][2005];
+#define LINE_SIZE 2005
+//char char_array[ARRAY_SIZE][LINE_SIZE];
+char char_array2[ARRAY_SIZE][LINE_SIZE];
 unsigned int line_count = 0;
+char * filename = "../wiki_dump.txt";
 
-int main(void)
+int main(int argc, char ** argv)
 {
+    int i;
+
     omp_set_num_threads(NUM_THREADS);
 
+    if (argc > 1)
+    {
+        filename = argv[0];
+        line_count = atoi(argv[1]);
+    }
+
 	//ReadFileIntoArray();
-    CountLines();
+    //CountLines();
     #pragma omp parallel 
 	{
         DoLCS(omp_get_thread_num());
+        printf("Somehow after LCS.\n");
     }
     
     PrintArray();
 
   	return 0;
 }
+
 void PrintArray()
 {
     int i;
@@ -43,14 +56,17 @@ void PrintArray()
 void DoLCS(int myID)
 {
     int lengthX, lengthY, i,j, startPos, endPos;
-    
+
     #pragma omp private(myID, i, j, lengthX, lengthY, startPos, endPos)
     {
         startPos = myID * (line_count / NUM_THREADS);
 		endPos = startPos + (line_count / NUM_THREADS);
         
-        char char_array[endPos-startPos][2005];
+        char char_array[endPos-startPos][LINE_SIZE];
+        
+        printf("Inside LCS3\n");
         ReadFileIntoArray(startPos, endPos, (char**)char_array);
+        printf("Inside LCS4\n");
         
         for(i = startPos, j = 0; i < endPos; i++, j++)
         {
@@ -106,41 +122,52 @@ void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineN
     strcpy(char_array2[lineNum1], LCS);
 }
 
-void ReadFileIntoArray(int startPos, int endPos, char** local_array)
+char ** ReadFileIntoArray(int startPos, int endPos, char** local_array)
 {
-    char* filename = "../wiki_dump.txt";
-	FILE *fp;
-    int local_count=0;
-    int another_count = startPos;
-    fp = fopen(filename, "r");
-    if (fp == NULL){
+	FILE *fp = fopen(filename, "r");
+    int index = 0;
+    int curPos = startPos;
+
+    char char_array[endPos-startPos][LINE_SIZE];
+    
+    
+    if (fp == NULL) {
         printf("Could not open file %s",filename);
         return;
     }
-    char line[2005];
-    while (fgets(line, ARRAY_SIZE, fp) != NULL)
+    printf("ReadFunc1\n");
+    
+
+    char line[LINE_SIZE];
+    // fgets(*(local_array + startPos * ARRAY_SIZE), ARRAY_SIZE, fp);
+    // **local_array = 'c';
+        printf("ReadFuncWhile\n");
+    while (fgets(char_array[index], ARRAY_SIZE, fp) != NULL && curPos <= endPos)
 	{		
-        if(another_count <=endPos)
-        {    
-            strcpy(local_array[local_count],line);
-            another_count++;
-        }
-		local_count++;      
-	}    
+        
+    //     // if(curPos <=endPos)
+    //     // {    
+    //         strcpy(local_array[index], line);
+    //     //     curPos++;
+    //     // }
+		index++;      
+	}
+
+        printf("ReadFuncEnd\n");
 	fclose(fp);
-    return;
+    
+    return char_array;
 }
 void CountLines()
 {
-    char* filename = "../wiki_dump.txt";
-	FILE *fp;
+	FILE *fp = fopen(filename, "r");
     
-    fp = fopen(filename, "r");
     if (fp == NULL){
         printf("Could not open file %s",filename);
         return;
     }
-    char line[2005];
+
+    char line[LINE_SIZE];
     while (fgets(line, ARRAY_SIZE, fp) != NULL)
 	{		
 		 line_count++;
@@ -149,6 +176,7 @@ void CountLines()
     printf("line_count: %d\n\n\n", line_count);
 	fclose(fp);
 }
+
 /* Clears the given array */
 void clearArray(char *array, int lengthArray)
 {
