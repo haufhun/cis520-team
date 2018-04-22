@@ -11,11 +11,11 @@ void DoLCS(int);
 void PrintArray(void);
 void CountLines();
 
-#define NUM_THREADS 6
+#define NUM_THREADS 2
 #define ARRAY_SIZE 1000000
 #define LINE_SIZE 2005
-char local_array[ARRAY_SIZE][LINE_SIZE];
-char char_array2[ARRAY_SIZE][LINE_SIZE];
+char _linesOfFile[ARRAY_SIZE][LINE_SIZE];
+char _resultLCS[ARRAY_SIZE][LINE_SIZE];
 unsigned int line_count = 0;
 char * filename = "../wiki_dump.txt";
 
@@ -48,7 +48,7 @@ void PrintArray()
     int i;
     for(i = 0; i < line_count; i ++)
     {
-         printf("%d-%d: %s\n", i, i+1, char_array2[i]);
+         printf("%d-%d: %s\n", i, i+1, _resultLCS[i]);
     }
 }
 
@@ -61,18 +61,17 @@ void DoLCS(int myID)
         
         startPos = myID * (line_count / NUM_THREADS);
 		endPos = startPos + (line_count / NUM_THREADS);
-        //printf("%d startPos: %d\n", myID,startPos);
-        //printf("endPos: %d\n", endPos);
-        //char local_array[endPos2-startPos2][LINE_SIZE];
+        printf("%d startPos: %d\n", myID,startPos);
+        printf("endPos: %d\n", endPos);
         
        ReadFileIntoArray(startPos, endPos);
         
       
        for(i = startPos, j = 0; i < endPos; i++, j++)
         {
-          lengthX = strlen(local_array[j]);
-          lengthY = strlen(local_array[j+1]);
-           getLCS(local_array[j], local_array[j+1], lengthX, lengthY, i, i+1);
+          lengthX = strlen(_linesOfFile[i]);
+          lengthY = strlen(_linesOfFile[i+1]);
+          getLCS(_linesOfFile[i], _linesOfFile[i+1], lengthX, lengthY, i, i+1);
         }
 
     }
@@ -119,8 +118,11 @@ void getLCS( char *X, char *Y, int lengthX, int lengthY, int lineNum1, int lineN
     int lengthLCS = strlen(LCS)-1;
     if (LCS[lengthLCS] == '\n' || LCS[lengthLCS] == '\r')
         LCS[lengthLCS] = '\0';    
-    
-    strcpy(char_array2[lineNum1], LCS);
+     
+    #pragma omp critical
+    { 
+       strcpy(_resultLCS[lineNum1], LCS);
+    }
 }
 
 void ReadFileIntoArray(int startPos, int endPos)
@@ -138,23 +140,25 @@ void ReadFileIntoArray(int startPos, int endPos)
     
 
     char line[LINE_SIZE];
-    // fgets(*(local_array + startPos * ARRAY_SIZE), ARRAY_SIZE, fp);
-    // **local_array = 'c';
+    // fgets(*(_linesOfFile + startPos * ARRAY_SIZE), ARRAY_SIZE, fp);
+    // **_linesOfFile = 'c';
        // printf("ReadFuncWhile\n");
-    while (fgets(line, ARRAY_SIZE, fp) != NULL && lineInFile <= endPos)
-	{		
-        if(lineInFile >= startPos)
-        {    
-            strcpy(local_array[lineInFile], line);
-            index++;
+    #pragma omp critical
+    {
+        while (fgets(line, LINE_SIZE, fp) != NULL && lineInFile <= endPos)
+        {		
+            if(lineInFile >= startPos)
+            {    
+                strcpy(_linesOfFile[lineInFile], line);
+                printf("line %d: %s\n", lineInFile, _linesOfFile[lineInFile]);
+                //index++;
+            }
+            lineInFile++;      
         }
-		lineInFile++;      
-	}
-
+    }
         //printf("ReadFuncEnd\n");
 	fclose(fp);
     
-    //return local_array;
 }
 void CountLines()
 {
@@ -166,11 +170,12 @@ void CountLines()
     }
 
     char line[LINE_SIZE];
-    while (fgets(line, ARRAY_SIZE, fp) != NULL)
+    while (fgets(line, LINE_SIZE, fp) != NULL)
 	{		
 		 line_count++;
          
-	}    
+	}  
+    line_count = 10;
     printf("line_count: %d\n\n\n", line_count);
 	fclose(fp);
 }
