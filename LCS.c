@@ -11,10 +11,10 @@ void DoLCS(int);
 void PrintArray(void);
 void CountLines();
 
-#define NUM_THREADS 1
+#define NUM_THREADS 6
 #define ARRAY_SIZE 1000000
 #define LINE_SIZE 2005
-//char char_array[ARRAY_SIZE][LINE_SIZE];
+char local_array[ARRAY_SIZE][LINE_SIZE];
 char char_array2[ARRAY_SIZE][LINE_SIZE];
 unsigned int line_count = 0;
 char * filename = "../wiki_dump.txt";
@@ -36,7 +36,6 @@ int main(int argc, char ** argv)
     #pragma omp parallel 
 	{
         DoLCS(omp_get_thread_num());
-        printf("Somehow after LCS.\n");
     }
     
     PrintArray();
@@ -56,24 +55,26 @@ void PrintArray()
 void DoLCS(int myID)
 {
     int lengthX, lengthY, i,j, startPos, endPos;
-
+    
     #pragma omp private(myID, i, j, lengthX, lengthY, startPos, endPos)
     {
+        
         startPos = myID * (line_count / NUM_THREADS);
 		endPos = startPos + (line_count / NUM_THREADS);
+        //printf("%d startPos: %d\n", myID,startPos);
+        //printf("endPos: %d\n", endPos);
+        //char local_array[endPos2-startPos2][LINE_SIZE];
         
-        char char_array[endPos-startPos][LINE_SIZE];
+       ReadFileIntoArray(startPos, endPos);
         
-        //printf("Inside LCS3\n");
-        ReadFileIntoArray(startPos, endPos);
-        //printf("Inside LCS4\n");
-        
-        for(i = startPos, j = 0; i < endPos; i++, j++)
+      
+       for(i = startPos, j = 0; i < endPos; i++, j++)
         {
-           lengthX = strlen(char_array[j]);
-           lengthY = strlen(char_array[j+1]);
-           getLCS(char_array[j], char_array[j+1], lengthX, lengthY, i, i+1);
+          lengthX = strlen(local_array[j]);
+          lengthY = strlen(local_array[j+1]);
+           getLCS(local_array[j], local_array[j+1], lengthX, lengthY, i, i+1);
         }
+
     }
 }
 /* Returns the longest common substring of two strings.
@@ -127,8 +128,6 @@ void ReadFileIntoArray(int startPos, int endPos)
 	FILE *fp = fopen(filename, "r");
     int index = 0;
     int lineInFile = startPos;
-
-    char char_array[endPos-startPos][LINE_SIZE];
     
     
     if (fp == NULL) {
@@ -146,7 +145,7 @@ void ReadFileIntoArray(int startPos, int endPos)
 	{		
         if(lineInFile >= startPos)
         {    
-            strcpy(local_array[index], line);
+            strcpy(local_array[lineInFile], line);
             index++;
         }
 		lineInFile++;      
@@ -155,7 +154,7 @@ void ReadFileIntoArray(int startPos, int endPos)
         //printf("ReadFuncEnd\n");
 	fclose(fp);
     
-    //return char_array;
+    //return local_array;
 }
 void CountLines()
 {
