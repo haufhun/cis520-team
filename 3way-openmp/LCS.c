@@ -12,13 +12,15 @@ void DoLCS(int);
 void PrintArray(void);
 void CountLines();
 
-#define NUM_THREADS 1
+//#define NUM_THREADS 1
 #define ARRAY_SIZE 1000000
 #define LINE_SIZE 2005
+int NUM_THREADS = 1;
+
 char _linesOfFile[ARRAY_SIZE][LINE_SIZE];
 char _resultLCS[ARRAY_SIZE][LINE_SIZE];
 unsigned int line_count = 0;
-char * filename = "../wiki_dump.txt";
+char * filename = "../../wiki_dump.txt";
 
 int main(int argc, char ** argv)
 {
@@ -29,7 +31,7 @@ int main(int argc, char ** argv)
     
     printf("DEBUG: starting CLI parsing on %s\n", getenv("HOSTNAME"));
 
-    omp_set_num_threads(NUM_THREADS);
+    
     
     if (argc > 1)
     {
@@ -38,13 +40,19 @@ int main(int argc, char ** argv)
             printf("Invalid line count given.\n"); 
             return -1;
         }
-        
+        if(atoi(argv[2]) > 32)
+        {
+            printf("Invalid core count given.\n"); 
+            return -1;
+        }
         line_count = atoi(argv[1]);
+        NUM_THREADS = atoi(argv[2]);
     }
     else
         CountLines();
   
-
+    omp_set_num_threads(NUM_THREADS);
+    
     printf("DEBUG: starting DoLCS.\n");
     
     #pragma omp parallel 
@@ -61,7 +69,7 @@ int main(int argc, char ** argv)
     elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0; //sec to ms
 	elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms
 
-    printf("DATA, %d, %s, %f\n", line_count, getenv("SLURM_CPUS_ON_NODE"),  elapsedTime);
+    printf("DATA, line_count:%d, NUM_THREADS:%d, elapsedTime:%f\n", line_count, NUM_THREADS,  elapsedTime);
     
   	return 0;
 }
