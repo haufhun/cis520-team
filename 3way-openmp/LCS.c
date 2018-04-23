@@ -18,7 +18,7 @@ void CountLines();
 char _linesOfFile[ARRAY_SIZE][LINE_SIZE];
 char _resultLCS[ARRAY_SIZE][LINE_SIZE];
 unsigned int line_count = 0;
-char * filename = "../wiki_dump.txt";
+char * filename = "../../wiki_dump.txt";
 
 int main(int argc, char ** argv)
 {
